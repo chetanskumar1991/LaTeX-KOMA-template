@@ -1,0 +1,47 @@
+%%%% Time-stamp: <2012-08-20 17:41:39 vk>
+
+%% example text content
+%% scrartcl and scrreprt starts with section, subsection, subsubsection, ...
+%% scrbook starts with part (optional), chapter, section, ...
+%%\chapter{Example Chapter}
+
+\chapter{Introduction}
+\section{Motivation}
+An important technique of Computer Vision is to predict accurately the position of a camera (rotation + translation) in the real world (called the \emph{pose}), given an image captured from it. This idea is christened \emph{Visual Localization} 
+
+Visual Localization is vital to applications that require robust navigation capabilities. An example that comes to mind would be the popular Autonomous Driving paradigm, wherein modalities such as GPS can be unreliable in dense urban areas. The camera, however, always works and can be relied upon to provide accurate estimates of the current position. 
+
+The standard way to tackle this problem would be to utilize \emph{Structure from Motion(SfM)}. SfM utilizes corresponding points between two images and the geometry between two views to construct a 3D pointcloud of the scene. A query image's location is obtained by finding points of the 3D pointcloud that match with image points, and utilizing geometric techniques to fit a pose to these correspondences. SfM, however, does not scale very well to city-scale areas where obtaining suitable image data and a usable reconstruction are a major problem. It also does not behave well with later modifications to the structure of its representation.
+
+A quicker but less robust way is to store a database of images of known locations in the required area, indexed by carefully chosen image-specific features. The images closest to the query image would be extracted using these features, and an approximate location could be interpolated. This approach is definitely more scalable, but is susceptible to false positives and failure if the sampling of images in an area are not dense enough. 
+
+Deep Learning's rise has affected Visual Localization as well. The seminal paper on PoseNet \cite{Kendall2015}, proved that Localization is possible by training a Convolutional Neural Network (CNN) with Image and Position data and then use it to predict the position of a new image in real-time. This approach definitely mitigates both the scale and accuracy problems, but the work by \cite{Sattler2019}, proves that PoseNet variants are not as powerful as traditional SfM approaches. State-of-the-art methods have made strides in mitigating this problem.
+
+We propose a method that utilizes a CNN to infer pose directly on the map raster of the area in question, given a 2D layout of buildings visible from a traveling car. We aim to address convincingly the problem of data acquisition, and scale of localization with this method.  
+
+\section{Contribution}
+In this thesis, we attempt to achieve a coarse localization estimate of a car traversing through an urban setting. 
+
+We reformulate the visual localization problem as a 2d pose estimation directly on the map raster. Our Localization CNN (\cite{Brahmbhatt2018}, MapNet) is trained on OSM map tiles of an area, where the pose of a tile is simply a 2d offset from some arbitrary reference tile. Overlap between the tiles is assumed.    
+
+The location is queried by feeding it a map-tile representation obtained from the pointcloud of the scene. 
+
+The method opens up a new data source for training visual localization networks - OpenStreetMap tile data, which covers most of the known urban world. We will aim to show that we can get reasonable pose estimates using just building/road pointclouds, using MapNet trained over large sections of a city. 
+
+We evaluate the method with the Oxford RobotCar sequence. We choose locations in the drive sequence which have distinct building shapes (this constraint is necessary for the current iteration of our method), and directly infer GPS locations from the MapNet trained on that section of Oxford. 
+
+\section{Outline}
+We begin by describing the core concepts utilized in the method outlined in this thesis: the basic concepts of Structure from Motion(SfM), and a delineation of neural networks and convolutional neural networks (CNNs). We then describe the traditional solution to the localization problem, and proceed to the seminal localization CNN PoseNet. We later describe MapNet, and how we utilize it for our method. The process of getting from the PointCloud of the scene to a 2D Map-Tile representation ready for query is also described in this chapter. We then describe how we generate the dataset with which we train MapNet from OpenStreetMap.
+
+Finally, we showcase our experiments and results and close with our conclusions.
+
+
+%% vim:foldmethod=expr
+%% vim:fde=getline(v\:lnum)=~'^%%%%\ .\\+'?'>1'\:'='
+%%% Local Variables: 
+%%% mode: latex
+%%% mode: auto-fill
+%%% mode: flyspell
+%%% eval: (ispell-change-dictionary "en_US")
+%%% TeX-master: "main"
+%%% End: 

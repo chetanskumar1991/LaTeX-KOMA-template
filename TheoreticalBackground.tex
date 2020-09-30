@@ -46,7 +46,7 @@ $f$ is the focal length, and $c_x, c_y$ is the principal point. $s$ is the shear
 
 The aim of Camera Calibration is to recover the intrinsics and/or extrinsics. If we denote the 3D points as $\mathbf{X}$, and the corresponding 2D points as $\mathbf{x}$, we can formulate the following set of equations:
 
-\[\mathbf{x}=\begin{bmatrix}
+\[\mathbf{x}=\lambda\begin{bmatrix}
 u\\
 v\\
 1\end{bmatrix}, \mathbf{P} = \begin{bmatrix}
@@ -90,6 +90,63 @@ Distortions due to actual lens shapes can be modeled as a simple radial distance
 For accurate SfM, it is crucial to get a good estimation of the camera projection matrix. 
 
 \section{Feature Extraction}
+Features are descriptions of special locations of the image that are invariant under transformations of the image, spatial or otherwise. 
+
+Features can either be learned, or handcrafted. We outline the fundamentals of handcrafted features here as we use only those in our pipeline.
+\subsection{Keypoint Extraction}
+We first have to identify interesting points in the image before we can invariantly describe them. The standard keypoint detector is the Harris detector, upon which most other handcrafted detectors are based. We outline below the central ideas of the Harris detector. 
+
+Without loss of generality, assume that a grayscale image I is used. For a small shift of $[\Delta x \ \Delta y]^T$ of some pixel located at $[x \ y]^T$ in a window W of the image I:
+
+\[f(\Delta x, \Delta y) = \sum_{(x_k, y_k) \in W}^{}(I(x_k, y_k) - I(x_k + \Delta x, y_k + \Delta y))^2\]
+
+is the squared error sum obtained by shifting the window by $[\Delta x \ \Delta y]^T$.
+
+We can approximate $I(x + \Delta x, y + \Delta y)$ by a Taylor expansion and keep only the first order terms. This leads us to the following expression for $f$:
+
+\[f(\Delta x, \Delta y) = \sum_{(x, y) \in W}(I_x(x, y)\Delta x + I_y(x, y) \Delta y)^2\]
+
+Expanding the squares, and rewriting as a quadratic matrix multiplication leads us to:
+
+\[f(\Delta x, \Delta y) \approx [\Delta x \ \Delta y]\underbrace{\sum_{(x, y) \in W}\begin{bmatrix}
+I_x^2 & I_xI_y\\
+I_xI_y & I_y^2\\
+\end{bmatrix}}_{\text{M}}[\Delta x \ \Delta y]^T\]
+
+Here, M is called the \emph{structure tensor}. We use the structure tensor to calculate the \emph{Harris Response} as follows:
+
+\[R = det(M)\ -\ k.trace(M)\]
+
+We choose as keypoint only those locations $[x\ y]$ for which R is high. At these locations, both eigenvalues are high. This means  that the error increases uniformly in all directions, and therefore the point is most likely a corner. 
+
+\subsection{Descriptor extraction}
+There are several handcrafted feature descriptors which describe points of interest robustly, but SIFT (Shift Invariant Feature Transform) is the foundational one and reliable even to this day. The SIFT detector+descriptor works basically in the following stages:
+
+SIFT Detector:
+\begin{itemize}
+\item Create scale pyramid of the image using a Gaussian kernel.
+\item Create a DoG (Difference of Gaussians) pyramid by taking the difference between successive scales.
+\item Detect extremal points by comparing to 8 neighbours in current, above and below scales.  
+\item Filter out locations from previous step further with a Harris-like procedure described in the previous section.
+\item Assign as orientation of the point the dominant orientation of its gradient.
+\end{itemize}
+
+SIFT Descriptor: We know the scale, location and orientation of each keypoint. 
+\begin{itemize}
+	\item Around each keypoint, consider a 16x16 window. Subdivide this into 16 4x4 blocks.
+	\item For each 4x4 block, create an 8-bin orientation histogram. 
+	\item Concatenate the 16 8-bin histogram, to get a 128-dimensional vector. This is our final SIFT descriptor. 
+\end{itemize}
+
+ 
+
+
+
+
+
+
+
+
 
 
 

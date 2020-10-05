@@ -89,11 +89,11 @@ Distortions due to actual lens shapes can be modeled as a simple radial distance
 
 For accurate SfM, it is crucial to get a good estimation of the camera projection matrix. 
 
-\section{Feature Extraction}
+\subsection{Feature Extraction}
 Features are descriptions of special locations of the image that are invariant under transformations of the image, spatial or otherwise. 
 
 Features can either be learned, or handcrafted. We outline the fundamentals of handcrafted features here as we use only those in our pipeline.
-\subsection{Keypoint Extraction}
+\subsubsection{Keypoint Extraction}
 We first have to identify interesting points in the image before we can invariantly describe them. The standard keypoint detector is the Harris detector, upon which most other handcrafted detectors are based. We outline below the central ideas of the Harris detector. 
 
 Without loss of generality, assume that a grayscale image I is used. For a small shift of $[\Delta x \ \Delta y]^T$ of some pixel located at $[x \ y]^T$ in a window W of the image I:
@@ -119,8 +119,8 @@ Here, M is called the \emph{structure tensor}. We use the structure tensor to ca
 
 We choose as keypoint only those locations $[x\ y]$ for which R is high. At these locations, both eigenvalues are high. This means  that the error increases uniformly in all directions, and therefore the point is most likely a corner. 
 
-\subsection{Descriptor extraction}
-There are several handcrafted feature descriptors which describe points of interest robustly, but SIFT (Shift Invariant Feature Transform) is the foundational one and reliable even to this day. The SIFT detector+descriptor works basically in the following stages:
+\subsubsection{Descriptor extraction}
+There are several handcrafted feature descriptors which describe points of interest robustly, but SIFT (Shift Invariant Feature Transform) is the foundational one and the most widely used. The SIFT detector+descriptor works basically in the following stages:
 
 SIFT Detector:
 \begin{itemize}
@@ -135,8 +135,113 @@ SIFT Descriptor: We know the scale, location and orientation of each keypoint.
 \begin{itemize}
 	\item Around each keypoint, consider a 16x16 window. Subdivide this into 16 4x4 blocks.
 	\item For each 4x4 block, create an 8-bin orientation histogram. 
-	\item Concatenate the 16 8-bin histogram, to get a 128-dimensional vector. This is our final SIFT descriptor. 
+	\item Concatenate the 16 8-bin histograms to get a 128-dimensional vector. This is our final SIFT descriptor. 
 \end{itemize}
+
+\subsection{Feature Matching}
+Given descriptors for interest points for a pair of images (obtained perhaps with procedures like the ones outlined above), we seek to obtain corresponding points. This procedure is often done in a brute force manner for small images (each descriptor is compared to every other descriptor). However, this method is not feasible for images with a large number of features.
+
+The standard solution to the above problem is to utilize tree methods, such as K-d trees, to speed up the search for a matching descriptor candidate. A popular method is the FLANN (Fast Approximate Nearest Neighbour search algorithm).
+
+A pair of descriptors are compared using the L1 distance (for descriptors such as SIFT, SURF, etc) or the Hamming distance (for binary descriptors such as BRIEF).
+
+The output of this stage in the pipeline is the set of corresponding points of the image pair. 
+
+\subsection{Sparse Reconstruction}
+\subsubsection{Triangulation}
+Given a set of corresponding points in a two-view setting, we can check for the location of the 3D point that projects on to these correspondences by intersecting rays from these correspondences. This idea is the basis of \emph{triangulating} for the location of the 3d point.
+
+\myfig{thesis/triangulation}%% filename
+{scale=0.6}%% width/height
+{Triangulation in SfM}%% caption
+{Triangulation}%% optional (short) caption for list of figures
+{tb2.3}
+
+The 3D point $\mathbf{X}$ projects on to the left image as $\mathbf{x_L} = \mathbf{P_LX}$ and onto the right image as $\mathbf{x_R} = \mathbf{P_RX}$, where $\mathbf{P_L}$ and $\mathbf{P_R}$ are the poses of the left and right images respectively. Since the camera poses and the 2D points are known, we can solve for the 3D point $X$ in the above equations. 
+
+\subsubsection{Refinement of reconstruction}
+The 3D points so constructed could have inaccuracies due to measurement errors and drift. A procedure called bundle adjustment is proposed to refine the triangulated points. Its objective function is:
+
+\[\min{\mathbf{a_j,b_i}} \sum_{i=1}^{n} \sum_{j=1}^{m} v_{ij}d(\mathbf{Q(a_j, b_i), x_{ij}})^2\]
+
+Camera $i$ is parameterized by $\mathbf{a_i}$, and $\mathbf{b_j}$ is the $j^{th}$ 3D point.$\mathbf{Q(a_j, b_i)}$ is the predicted position of point $i$ on image $j$, and $\mathbf{d}$ is the euclidean distance.
+
+We can see that Bundle Adjustment minimizes overall reprojection error of each 3D point, and is optimized by the Levenberg-Marquardt algorithm.
+
+\section{The Basics of Convolutional Neural Networks (CNNs)}
+\subsection{The Fundamentals of Deep Neural Nets}
+Neural networks are essentially a composition of alternating linear and nonlinear functions, nested to an arbitrary depth. These nonlinearities are usually fixed, and are called \emph{activation functions} - eg. Logistic Sigmoid, tanh, Rectified Linear Unit (ReLU). 
+
+\begin{center}
+	\begin{tabular}{ |c|c| } 
+		\hline
+		Logistic Sigmoid & $g(x) = \frac{1}{1 + e^{-x}}$ \\\\
+		tanh & $g(x) = \frac{e^{2x} - 1}{e^{2x} + 1}$ \\\\
+		ReLU & $g(x)= max(0, x)$ \\ 
+		\hline
+	\end{tabular}
+\end{center}
+
+The nesting level is called \emph{layer} in neural network parlance. 
+
+\myfig{thesis/neural_nets}%% filename
+{scale=0.6}%% width/height
+{Typical neural network architecture}%% caption
+{Neural Net Architecture}%% optional (short) caption for list of figures
+{tb2.4} % From DeepAi
+
+The output at layer $l+1$ can be expressed as a function of the previous layer's output as follows:
+
+\[a^{(l+1)} = g(\underbrace{W^{(l+1)}a^{(l)} + b^{(l+1)})}_{z^{(l)}}\]
+
+This deeply composed function has enough degrees of freedom to theoretically fit any target function. The fitting procedure is performed by varying the weight matrix of all the layers ($W_{(l)}$). Gradient descent is the algorithm of choice to arrive at the optimal weights.
+
+Gradient descent relies on varying the weights in the direction of the gradient of the loss function w.r.t the weights - this is the direction of steepest descent. However, to apply this procedure, we must first obtain the gradient of the loss function w.r.t the weights. This is obtained by a procedure christened \emph{backpropagation}.
+
+\myfig{thesis/backprop}%% filename
+{scale=0.6}%% width/height
+{The Backpropagation Algorithm}%% caption
+{Backpropagation}%% optional (short) caption for list of figures
+{tb2.5} % From http://neuralnetworksanddeeplearning.com/chap2.html
+
+Backpropagation is actually a sequential application of the \emph{chain rule}. 
+If our error function is $L$, then backpropagating to find the weights of the first layer $W_0$ would function as follows:
+
+\[\frac{\partial E}{\partial W^{(0)}} =  \underbrace{\underbrace{\frac{\partial E}{\partial y^{(l)}} \frac{\partial y^{(l)}}{\partial z^{(l)}}}_{\delta^{(l)}} \frac{\partial z^{(l)}}{\partial y^{(l-1)}} \frac{\partial y^{(l-1)}}{\partial z^{(l-1)}}}_{\delta^{(l-1)}} \textellipsis \frac{\partial y^{(1)}}{\partial W_{(0)}}\]
+
+The above architecture can technically learn to fit any function 
+$f: \mathbb{R}^n \rightarrow \mathbb{R}^m $.
+
+\subsection{Convolutional Neural Networks}
+The standard feedforward neural network works only to fit to vector valued functions. Input of any spatial structure would have to first be unrolled into a 1D vector before it being used in this network. However, if we wanted to preserve spatial relationships during the learning procedure (eg. with images), we would need to formulate a new architecture.
+
+Convolutional Neural Networks are the defacto method to address fitting outputs to 2D inputs where spatial relationships are crucial. Thus, images are the most obvious and abundant sources of data for the CNN. CNNs have been applied successfully to several computer vision tasks such as segmentation, classification, object recognition, etc. and near or even superhuman performance has been achieved in these tasks.
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 

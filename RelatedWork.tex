@@ -1,0 +1,106 @@
+%%%% Time-stamp: <2012-08-20 17:41:39 vk>
+
+%% example text content
+%% scrartcl and scrreprt starts with section, subsection, subsubsection, ...
+%% scrbook starts with part (optional), chapter, section, ...
+%%\chapter{Example Chapter}
+
+\chapter{Related Work}
+\section{Feature Based Localization}
+Traditionally, the task of Visual Localization is performed using the components of SfM. Given a query image whose pose we are required to find in some 3D reconstruction, the basic sequence of steps followed are:
+
+\begin{itemize}
+	\item \emph{Extract descriptors} for the query image.\\
+	\item \textit{Match} 2D query image keypoints to 3D Reconstruction points.\\
+	\item \textit{Refine pose} of the query image using the 2D-3D matches of the previous step, and the PnP algorithm.\\
+\end{itemize}
+
+Descriptor extraction has been detailed in the previous section. We will describe briefly the proceeding two steps. 
+
+\subsection{2D-3D Matching}
+Once we have the features of the query image, we can associate them with corresponding image features in the reconstruction. Each image feature has also an association with some 3D point in the reconstruction, and by transitivity we can assert an association between the query keypoints and a 3D point of the reconstruction.
+
+\myfig{thesis/traditional_localization}%% filename
+{scale=0.4}%% width/height
+{Feature Based Localization}%% caption
+{Feature Based Localization}%% optional (short) caption for list of figures
+{tb3.1} % From Torsten Sattler's ECCV 2018 Visual Localization Slides.
+
+A tree structure like the k-d tree is used to hash the reconstruction's features of the reconstruction for rapid matching of the query image features against large reconstructions.
+
+\subsection{Pose Refinement with RANSAC + Perspective-n-Pose}
+Now that we know which 3D points are visible from the query image, we can try to figure out an affine transform of the 3D points that yields a minimum reprojection error when projected on the query image. 
+
+\myfig{thesis/PnP_Algorithm}%% filename
+{scale=0.4}%% width/height
+{Perspective-n-Pose Algorithm}%% caption
+{PnP Algorithm}%% optional (short) caption for list of figures
+{tb3.2} % From OpenCV Tutorials.
+
+The reprojection error objective to be minimized is:
+\[argmin_{R, t}\sum_{i=1}^{N}\|\hat{x_i} - x_i\|^2\]
+
+The projection from 3D point to 2D point i is:
+\[\mathbf{x_i} = \mathbf{K[R|t]X_i}\]
+
+The minimization is usually performed with the Levenberg-Marquardt algorithm. 
+
+To obtain a robust estimate of our pose, we sample sets of points and choose that pose which has maximum overall inliers (minimum overall reprojection error). This is the basic idea of the RANSAC procedure.
+
+\section{Pose Regression}
+CNNs trained on image-pose pairs of a scene have enabled the  of poses directly from a query image of that scene. The seminal work on this type of localization is PoseNet.
+
+\subsection{PoseNet}
+PoseNet takes as input a 224x224 RGB image, and regresses the 6-DoF pose of that image relative to the scene it was trained on. The output of the PoseNet is a 6 vector $[\mathbf{x}, \mathbf{q}]$, where \textbf{x} is the translation and \textbf{q} is a unit quaternion parameterizing rotation. 
+
+\subsubsection{PoseNet Loss}
+The loss function for the CNN of PoseNet is defined as follows:
+\[loss(I) = \mathbf{\|\hat{x} - x\|}_2 + \beta\mathbf{\|q - \dfrac{q}{\|q\|}\|}_2\]
+
+Note that the $\beta$ parameter balances the relative importance of translation and rotation loss, and was found to function well between 250 and 2000 for outdoor scenes.
+
+\subsubsection{PoseNet Architecture}
+PoseNet utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification.
+
+\myfig{thesis/googlenet}%% filename
+{scale=0.2}%% width/height
+{GoogLeNet Architecture}%% caption
+{GoogLeNet Architecture}%% optional (short) caption for list of figures
+{tb3.3} %
+
+The main idea of the GoogleNet was the stacking of the \textit{Inception module}, which created features of different receptive fields and aggregated them. 
+
+\myfig{thesis/Inception_module}%% filename
+{scale=0.4}%% width/height
+{Inception Module}%% caption
+{Inception Module}%% optional (short) caption for list of figures
+{tb3.4} % From OpenCV Tutorials.
+
+\begin{itemize}
+	\item The 3 softmax classifiers were replaced with an affine regressor (fully connected layers) which output a 7-dimension vector representing pose.\\
+	
+	\item Another fully connected layer of size 2048 was added before the final layer, so it could be used as a feature vector for localization. \\
+	
+	\item Normalize quaternion orientation vector to unit length at test time. \\ 
+\end{itemize}
+
+PoseNet was trained on image, pose pairs obtained from SfM and was able to get competitive results on standard datasets such as Cambridge and 7Scenes. It spawned several variants for visual localization that used its base architecture as a backbone, and we shall explain how we use one such variant (Mapnet) in our approach to solve the localization problem. 
+
+
+
+
+
+
+
+
+
+
+%% vim:foldmethod=expr
+%% vim:fde=getline(v\:lnum)=~'^%%%%\ .\\+'?'>1'\:'='
+%%% Local Variables: 
+%%% mode: latex
+%%% mode: auto-fill
+%%% mode: flyspell
+%%% eval: (ispell-change-dictionary "en_US")
+%%% TeX-master: "main"
+%%% End: 

@@ -169,7 +169,7 @@ Camera $i$ is parameterized by $\mathbf{a_i}$, and $\mathbf{b_j}$ is the $j^{th}
 We can see that Bundle Adjustment minimizes overall reprojection error of each 3D point, and is optimized by the Levenberg-Marquardt algorithm.
 
 \section{The Basics of Convolutional Neural Networks (CNNs)}
-\subsection{The Fundamentals of Deep Neural Nets}
+\subsection{The Fundamentals of Deep Neural Networks}
 Neural networks are essentially a composition of alternating linear and nonlinear functions, nested to an arbitrary depth. These nonlinearities are usually fixed, and are called \emph{activation functions} - eg. Logistic Sigmoid, tanh, Rectified Linear Unit (ReLU). 
 
 \begin{center}
@@ -215,7 +215,29 @@ $f: \mathbb{R}^n \rightarrow \mathbb{R}^m $.
 \subsection{Convolutional Neural Networks}
 The standard feedforward neural network works only to fit to vector valued functions. Input of any spatial structure would have to first be unrolled into a 1D vector before it being used in this network. However, if we wanted to preserve spatial relationships during the learning procedure (eg. with images), we would need to formulate a new architecture.
 
-Convolutional Neural Networks are the defacto method to address fitting outputs to 2D inputs where spatial relationships are crucial. Thus, images are the most obvious and abundant sources of data for the CNN. CNNs have been applied successfully to several computer vision tasks such as segmentation, classification, object recognition, etc. and near or even superhuman performance has been achieved in these tasks.
+Convolutional Neural Networks are the defacto method to address fitting functions to 2D data where spatial relationships are crucial. Thus, images are the most obvious and abundant sources of data for the CNN. CNNs have been applied successfully to several computer vision tasks such as segmentation, classification, object recognition, etc. and near or even superhuman performance has been achieved in these tasks.
+
+We begin by defining the application of the square shaped convolution operator \emph{H} on image \emph{I} of dimensions \emph{M $X$ N} as follows.
+
+\[Conv(y, x) = \sum_{m=0}^{M}\sum_{n=0}^{N}H(m, n)I(y-m, x-n)\]
+
+We can see that the convolution operation is a sum of the image intensities within the window, weighted by the values of the convolution kernel. For accesses outside the image area, padding (by reflection, zeros, etc.) is performed.
+
+CNNs are composed of three different layers: 
+\myfig{thesis/typical_cnn}%% filename
+{scale=0.3}%% width/height
+{The Typical CNN}%% caption
+{Typical CNN}%% optional (short) caption for list of figures
+{tb2.6} % From wikipedia
+\begin{itemize}
+	\item The \textit{Convolution Layer}, where the output is a set of images (called feature maps), that are the results of convolution of the input layer by a set of kernels of a certain dimension. \\
+	\item The \textit{Pooling/Subsampling Layer}, where a cluster of points around a each point is considered. The average or maximum of this cluster is taken as the output, thereby reducing the dimensionality of the feature maps. \\ 
+	\item The \textit{Fully Connected Layer} flattens the 2D feature maps into 1D vector outputs, which can then be used for conventional tasks such as classification or regression. 
+\end{itemize}
+
+
+
+
 
 
 

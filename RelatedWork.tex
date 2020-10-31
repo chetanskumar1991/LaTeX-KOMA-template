@@ -6,7 +6,7 @@
 %%\chapter{Example Chapter}
 
 \chapter{Related Work}
-\section{Feature Based Localization}
+\section{Localization against a 3D Pointcloud}
 Traditionally, the task of Visual Localization is performed using the components of SfM. Given a query image whose pose we are required to find in some 3D reconstruction, the basic sequence of steps followed are:
 
 \begin{itemize}
@@ -47,7 +47,78 @@ The minimization is usually performed with the Levenberg-Marquardt algorithm.
 
 To obtain a robust estimate of our pose, we sample sets of points and choose that pose which has maximum overall inliers (minimum overall reprojection error). This is the basic idea of the RANSAC procedure.
 
-\section{Pose Regression}
+\section{Localization with Global Image Descriptors}
+The basic idea of image based localization is to localize a query image by using strategies to find images (of known pose) in a database that are closest to it, 
+and then compute a pose with respect to these set of "close" images. The method of comparison employed between a pair of images here is the distance between their global image descriptors.
+While localizing against a huge pointcloud, the global descriptors can be used as a preliminary step in identifying a set of candidate images to form 2D-3D associations. 
+This reduces the search space considerably for matching query image features. 
+
+%cite Fast Image Localization by Sattler. 
+
+\subsection{Visual Vocabulary Trees} %cite Scalable Recognition with a Vocabulary Tree David Niste ́r and Henrik Stewe ́nius
+Intuitively speaking, visual words are a histogram over frequently occuring image content. This content is usually characterized by descriptors such as SIFT, etc.
+SIFT is the standard handcrafted descriptor for visual words, as they are highly distinctive. The general procedure to build tese visual words is detailed below:
+
+\myfig{thesis/visual_words}%% filename
+{scale=0.25}%% width/height
+{Construction of the visual words with hierarchical k-means tree}%% caption
+{Visual Words}%% optional (short) caption for list of figures
+{tb3.3} % From citation
+
+\begin{itemize}
+	\item For a large, diverse database of images, aggregate all the SIFT descriptors from each image. This will be our training data.\\
+	\item Run an initial k-means clustering on the training data and get the k cluster centers.\\
+	\item The training dataset is then partitioned into k sets, where each set contains a cluster center and a set of descriptor vectors closest to it.\\
+	\item Apply the previous two steps to each of the k sets, a predetermined number of steps. We now have a hierarchical k-means tree.\\
+\end{itemize}
+
+In the online phase, when we need to compute a visual word descriptor for an image, all we need to do is take every (SIFT) descriptor of the image and compute 
+which of the k clusters of our vocabulary tree is closest to the word. This "closeness" is computed by propagating the descriptor vector down the tree for each 
+level-1 node, yielding a score for each node by computing inner products with each descriptor in the tree.
+
+After doing this scoring for all the descriptors in the image and computing a histogram, we have our visual words description for the image. 
+
+\subsection{VLAD}
+The VLAD descriptor serves as a global image descriptor. It also uses a vocabulary tree, and is computed as follows:
+
+\begin{itemize}
+	\item Compute a visual vocabulary tree as described previously, for some database of images. \\
+	\item Extract regions with an affine invariant detector.\\
+	\item Describe regions with the 128 dimensional SIFT descriptor. \\
+	\item Assign each descriptor to one of the k clusters of the vocabulary tree.\\
+	\item Compute and accumulate residuals (difference between cluster center and assigned descriptors) for each of the k cluster centers. Formally, this can
+	be defined as:
+	\[V(i, j) = \sum_{i=0}^{N}a_k(\mathcal(x)_i)(x_i(j) - c_k(j))\]
+	where $x_i(j)$ and $c_k(j)$ are the i-th descriptor and k-th cluster center respectively. $a_k(\mathcal(x)_i)$ denotes the membership of the descriptor in 
+	cluster center k.\\
+	\item Concatenate the final residuals from the k cluster centers into a $k x 128$ dimensional dimensional descriptor, referred to as unnormalized VLAD.
+\end{itemize}
+
+The VLAD descriptor can then be normalized with an L2 function, a signed squared root, or the intra-normalization (wherein the VLAD is normalized within each 
+cluster before concatenation, before L2 normalization).
+
+\subsection{NetVLAD}
+NetVLAD seeks to incorporate the VLAD idea into a CNN, which can potentially learn much better features than the handcrafted SIFT descriptor. However, the 
+obstacle to including VLAD as a layer would be the hard assignment of a descriptor to one of the clusters , i.e. $a_k(\mathbf{x})$. This is not differentiable. 
+To get around this problem, we change the hard assignment to a softer assignment as follows:
+
+\[a_k(\mathbf{x_i}) = \frac{e^{-\alpha\|\mathbf{x_i - c_k}\|}}{\sum_{k'}e^{-\alpha\|\mathbf{x_i - c_k'}\|}}\]
+
+which assigns descriptor $\mathbf{x_i}$ to to cluster $\mathbf{c_k}$ depending on proximity. Expanding squares and cancelling terms, we can rewrite the assignment
+function as:
+
+\[a_k(\mathbf{x_i}) = \frac{e^{\mathbf{w_k^T x_k} + b_k}}{\sum_{k'}e^{\mathbf{w_k'^T x_k'} + b_k'}}\]
+
+where $\mathbf{w_k} = w\alpha\mathbf{c_k}$ and $b_k = -\alpha\|\mathbf{c_k}\|^2$. Implementation-wise, this soft-assignment function can be broken up as a convolution
+for the linear part, and then a softmax for the normalization. Overall, the implementation can be summed up pictorially as:
+
+\myfig{thesis/netvlad}%% filename
+{scale=0.25}%% width/height
+{The NetVLAD network architecture}%% caption
+{NetVLAD}%% optional (short) caption for list of figures
+{tb3.4} % From citation
+
+\section{Localization by Regressing Pose with CNNs}
 CNNs trained on image-pose pairs of a scene have enabled the  of poses directly from a query image of that scene. The seminal work on this type of localization is PoseNet.
 
 \subsection{PoseNet}
@@ -66,7 +137,7 @@ PoseNet utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer
 {scale=0.2}%% width/height
 {GoogLeNet Architecture}%% caption
 {GoogLeNet Architecture}%% optional (short) caption for list of figures
-{tb3.3} %
+{tb3.5} %
 
 The main idea of the GoogleNet was the stacking of the \textit{Inception module}, which created features of different receptive fields and aggregated them. 
 
@@ -74,7 +145,7 @@ The main idea of the GoogleNet was the stacking of the \textit{Inception module}
 {scale=0.4}%% width/height
 {Inception Module}%% caption
 {Inception Module}%% optional (short) caption for list of figures
-{tb3.4} % From OpenCV Tutorials.
+{tb3.5} % From OpenCV Tutorials.
 
 \begin{itemize}
 	\item The 3 softmax classifiers were replaced with an affine regressor (fully connected layers) which output a 7-dimension vector representing pose.\\
@@ -85,6 +156,39 @@ The main idea of the GoogleNet was the stacking of the \textit{Inception module}
 \end{itemize}
 
 PoseNet was trained on image, pose pairs obtained from SfM and was able to get competitive results on standard datasets such as Cambridge and 7Scenes. It spawned several variants for visual localization that used its base architecture as a backbone, and we shall explain how we use one such variant (Mapnet) in our approach to solve the localization problem. 
+
+\subsection{VLocNet} %cite Deep Auxiliary Learning for Visual Localization and Odometry, valada et.al
+An improvement upon PoseNet was VLocNet by Valada et.al. In order to estimate the global pose of a pair of query frames accurately with respect to some scene, cues from 
+Visual Odometry (relative motion between frames) are used jointly with the global pose of the frames. The idea is that the relative motion estimates from VO would help constrict 
+the search space considerably. 
+
+Given a pair of frames $(I_t, I_{t-1})$, the network aims to regress the absolute pose $\mathbf{p_t} = \mathbf{(x_t, q_t)}$ and the relative pose 
+$\mathbf{p_{t, t-1}} = \mathbf{(x_{t, t-1}, q_{t, t-1})}$ where $\mathbf{x}$ is the translation 3-vector, and $\mathbf{q}$ is the rotation 4-vector. The semantic 
+branch predicts $M_t$, the pixelwise semantic mask of C classes for image $I_t$ 
+
+\myfig{thesis/vlocnet}%% filename
+{scale=0.4}%% width/height
+{VLocNet architecture}%% caption
+{VLocNet}%% optional (short) caption for list of figures
+{tb3.6} % From citation.
+
+\subsubsection{Architecture}
+The backbone network for the VLocNet shown above is a modified ResNet-50 network.
+
+\myfig{thesis/ResNet50}%% filename
+{scale=0.4}%% width/height
+{ResNet50 architecture}%% caption
+{ResNet50}%% optional (short) caption for list of figures
+{tb3.7} % From Automatic Hierarchical Classification of Kelps Using Deep Residual Features.
+
+However, the ResNet50 is modified as follows:
+
+\begin{itemize}
+	\item Replace conventional ReLUs with ELU activation functions, which have been found to be more robust to noise and are faster to converge. 
+\end{itemize}
+
+
+
 
 
 

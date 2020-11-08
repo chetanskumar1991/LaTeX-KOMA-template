@@ -179,7 +179,7 @@ The backbone network for the VLocNet shown above is a modified ResNet-50 network
 {scale=0.4}%% width/height
 {ResNet50 architecture}%% caption
 {ResNet50}%% optional (short) caption for list of figures
-{tb3.7} % From Automatic Hierarchical Classification of Kelps Using Deep Residual Features.
+{rw3.7} % From Automatic Hierarchical Classification of Kelps Using Deep Residual Features.
 
 However, the ResNet50 is modified as follows:
 
@@ -190,7 +190,7 @@ However, the ResNet50 is modified as follows:
     {scale=0.4}%% width/height
     {The ReLU and the ELU activation functions}%% caption
     {ReLU v ELU}%% optional (short) caption for list of figures
-	{tb3.8} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
+	{rw3.8} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
 
 	\item After the fifth layer, add a global average pooling layer. Add three inner product layers (\textit{fc1, fc2, fc3}) after, of dimensions 1024, 3, and 4.
 \emph{fc2} and \emph{fc3} regress the translation and rotation respectively. 
@@ -245,14 +245,36 @@ both networks.
 The authors propose two variants of a semantic learning branch: a single task architecture that predicts a pixel-wise segmentation mask for a monocular image, 
 and a multitask architecture that incorporates self-supervised warping and adaptive fusion layers in the segmentation process. 
 
-For the single-task architecture, an encoder-decoder model is used. The encoder is a ResNet-50 architecture, which learns highly discriminative semantic features
-16 times downsampled at the output layer. The decoder consists of two deconvolution layers, a skip convolution from the encoder for fusing high-resolution semantic maps
-and upsampling to the input feature resolution. At the output of the network, we get classification scores per pixel. We get per joint probability of assigning a class to 
-a pixel given an image, by applying softmax to the per pixel classfication scores. The loss function is therefore defined as the maximum log-sum of all points in this distribution.
 
-The multitask architecture utilizes a self-supervised warping method, wherein the pose of the previous timestep's image as predicted by the odometry stream is utilized.
-A depth image of the previous timestep image is predicted using a separate network \textcite{DispNet}, and the previous image's feature maps are now warped onto the current
-image's features. This operation allows robustness to camera angle deviations, object scale and frame distortions. It is also a feature augmenter, and thereby enforces consistent
+
+For the \emph{single-task architecture}, an encoder-decoder model is used. The encoder is a ResNet-50 architecture, which learns highly discriminative semantic features
+16 times downsampled at the output layer. The decoder consists of two deconvolution layers, a skip convolution from the encoder for fusing high-resolution semantic maps
+and upsampling to the input feature resolution. At the output of the network, we get classification scores per pixel. We get the probability of assigning a class to 
+a pixel given an image, by applying softmax to the per pixel classfication scores. The loss function is therefore defined as the maximum log-sum of all points in this distribution. 
+
+
+If we have a set of training images, $\mathcal{T} = {(I_n, M_n), n = 1,...N}$, where $I_n = {u_r | r = 1,...\rho}$ is the set of training images consisting of $\rho$ pixels, and $M_n = {m^n_r | r = 1,...\rho}$ is the set of corresponding ground truth masks with a semantic label per pixel, $m_n^r = {1,...C}$.
+
+Using the per-pixel classification scores $s_j$ we can model the probability of a pixel being assigned a semantic class with the softmax function, as follows:
+
+\[p_j(u_r, \theta | I_n) = \frac{exp(s_j(u_r, \theta)}{\sum_{k}^{C}exp(s_k(u_r, \theta)}\]
+
+The optimal network parameters $\theta$ is estimated by minimizing the following loss function:
+
+\[\mathcal{L_seg}(\mathcal{T}, \theta) = \sum_{n=1}^{N}\sum_{r=1}^{\rho}\sum_{j=1}^{C} \delta_{m_n^r, j}p_j(u_r, \theta | I_n)\]
+
+for $(I_n, M_n) \in \mathcal{T}$.
+
+The \emph{multitask architecture} utilizes a self-supervised warping method, wherein the pose of the previous timestep's image as predicted by the odometry stream is utilized.
+A depth image of the previous timestep, $D_t$, is predicted using a separate network \textcite{DispNet}, and the previous image's feature maps (outputs from layers \emph{Res4f} and \emph{Res5c} of the previous timesteps - this is marked in \figurename{rw3.7} ) are now warped onto the current
+image's features. 
+
+Formally, if the projection function is $\mathbf{\pi}$, we can warp on the previous timestep's pixels $u_r$ onto the current timestep $\hat{u_r}$ with relative pose $p_{1,t-1}$
+
+\[\hat{u_r} = \pi(T(p_{1,t-1}) \pi^{-1}(u_r, D_t(u_r)))\]
+
+
+This operation allows robustness to camera angle deviations, object scale and frame distortions. It is also a feature augmenter, and thereby enforces consistent
 learning of consistent semantics.
 
 \subsubsection{Summary}
@@ -262,6 +284,24 @@ transfer between domain specific information.
 
 This is the first network wherein the results of Localization is consistently equal to or better than the SfM/Feature desriptor approach. For detailed analysis of the results
 please refer the paper. 
+
+\subsection{Cross-View Localization}
+Cross-View Localization is the task of localizing a query image against a database of images captured from a different view than the typical query image. The most usual example is localizing a ground-view image against a database of aerial/satellite imagery.
+
+%https://openaccess.thecvf.com/content_cvpr_workshops_2015/W13/papers/Workman_On_the_Location_2015_CVPR_paper.pdf
+The seminal work in this area submitted by Jacobs et.al (\textcite{Jacobs15}), where they fine-tuned AlexNet on ImageNet and Places datasets. They proved the efficacy of CNNs as a feature extractor for cross-view image association by creating a dataset of the Charleston San Francisco aresa as follows: aerial imagery for a predetermined 40 sq.km region was downloaded from Bing maps, and was associated by GPS tagging to ground level images obtained via various open-source image databases such as flickr and Google StreetView. The pre-trained AlexNet was fed these images, and the final layer output is taken as the corresponding feature vector. 
+
+%https://www.cc.gatech.edu/~hays/papers/geolocalization_cvpr13_0421.pdf
+Their experiments were able to prove the high discriminative nature of CNNs for this purpose. The following graphs from their paper shows the performance of CNN features against the state of the art method by Lin.et.al (\textcite{Lin3}) at the time (which sought to learn the relationship between cross-view image pairs with a Support Vector machine based method).
+
+\myfig{thesis/jacobs_CNN}%% filename
+{scale=0.4}%% width/height
+{AlexNet features (Jacobs et.al) vs SVM learned (Lin et.al) Cross-View Localization}%% caption
+{CNN for cross view Jacobs et.al.}%% optional (short) caption for list of figures
+{rw3.9} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
+
+Other methods that utilize CNNs for Cross View localization were then spawned. Each paper utilized a different backbone CNN architecture, and incorporated more information about the image to make the CNN output more distinctive features. 
+
 
 
 \end{itemize}

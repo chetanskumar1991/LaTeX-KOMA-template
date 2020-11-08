@@ -1,0 +1,35 @@
+%%%% Time-stamp: <2012-08-20 17:41:39 vk>
+
+%% example text content
+%% scrartcl and scrreprt starts with section, subsection, subsubsection, ...
+%% scrbook starts with part (optional), chapter, section, ...
+%%\chapter{Example Chapter}
+
+\chapter{Methodology}
+Our approach to the Visual Localization problem is outlined broadly by these steps:
+\begin{itemize}
+	\item Convert pointcloud of the urban scene into a representation with building contours as seen from the road. This is the \emph{query} map tile.\\
+	\item Upon a dataset of overlapping map tiles of an area, train a Pose Regression Network (MapNet) to predict a 2d translation from a reference map tile. \\
+	\item Infer the location of the \emph{query} map tile directly upon the map raster on which MapNet was trained. \\  
+\end{itemize}
+
+\myfig{thesis/our_pipeline}%% filename
+{scale=0.5}%% width/height
+{Our Pipeline}%% caption
+{Our Pipeline}%% optional (short) caption for list of figures
+{tb4.1} % From OpenCV Tutorials.
+
+The approach can be characterized as a hybrid Pose Regression, wherein the query image is a map-tile like representation.
+
+
+\section{MapNet}
+
+%% vim:foldmethod=expr
+%% vim:fde=getline(v\:lnum)=~'^%%%%\ .\\+'?'>1'\:'='
+%%% Local Variables: 
+%%% mode: latex
+%%% mode: auto-fill
+%%% mode: flyspell
+%%% eval: (ispell-change-dictionary "en_US")
+%%% TeX-master: "main"
+%%% End: 

@@ -194,6 +194,7 @@ However, the ResNet50 is modified as follows:
 
 	\item After the fifth layer, add a global average pooling layer. Add three inner product layers (\textit{fc1, fc2, fc3}) after, of dimensions 1024, 3, and 4.
 \emph{fc2} and \emph{fc3} regress the translation and rotation respectively. 
+\end{itemize}
 
 	Instead of directly regressing the pose from the network, an following extra step is introduced: the fusion of the previous timestep's final downsampling layer output
 with that of the current timestep's final downsampling layer output. This happens for pairs of frames in a sequence, and forces the network to learn motion cues in the sequence.
@@ -208,16 +209,16 @@ can build up to the final loss function as follows:
 The translational and rotational losses between two consecutive frames are defined as:
 \[\mathcal{L}_{xRel}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \|\mathbf{x}_{t, t-1} - (\hat{\mathbf{x}}_t - \hat{\mathbf{x}}_{t-1})\|\]
 \[\mathcal{L}_{qRel}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \|\mathbf{q}_{t, t-1} - (\hat{\mathbf{q}}_t - \hat{\mathbf{q}}_{t-1})\|\]
-\break
+ 
 These two losses are each weighted exponentially with a learnable exponent, and added together to form the relative loss.
-\break
+ 
 \[ \mathcal{L}_{Rel}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \mathcal{L}_{xRel}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t))exp(-\hat{s}_{x_{Rel}}) + \hat{s}_{x_{Rel}}
 + \mathcal{L}_{qRel}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t))exp(-\hat{s}_{q_{Rel}}) + \hat{s}_{q_{Rel}}\]
-\break
+ 
 The absolute loss between pose prediction and ground truth has a similar structure:
 \[\mathcal{L}_{x}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \|\mathbf{x}_{t} - \hat{\mathbf{x}}_t\|\]
 \[\mathcal{L}_{q}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \|\mathbf{q}_{t} - \hat{\mathbf{q}}_t\|\]
-\break
+ 
 The individual euclidean translation and rotation losses are put together in a cumulative absolute pose loss terms as follows:
 \[ \mathcal{L}_{Euc}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t)) = \mathcal{L}_{x}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t))exp(-\hat{s}_{x}) + \hat{s}_{x}
 + \mathcal{L}_{q}(\mathbf{\mathit{f}}(\theta|\mathit{I}_t))exp(-\hat{s}_{q}) + \hat{s}_{q}\]
@@ -229,7 +230,7 @@ We put both relative and absolute losses together to get the following loss term
 Another branch of the overall network learns to predict visual odometry $\mathbf{p}_{t, t-1} = (\mathbf{x}_{t, t-1}, \mathbf{q}_{t, t-1})$, 
 given a pair of frames in a sequence $(I_t, I_{t-1})$. This is done by employing a dual stream architecture, wherein each branch is identical to 
 one another, and is based on the ResNet-50 architecture. 
-\break
+ 
 The feature maps before the last downsampling stage of both stages are concatenated, convolved through the last residual block, followed by an inner product layer
 and two pose regressors for estimating pose of both frames. This loss between predicted and ground truth motion is expressed by the following loss function:
 \[ \mathcal{L}_{vo}(\mathbf{\mathit{f}}(\theta|(\mathit{I}_t, \mathit{I}_{t-1})
@@ -237,14 +238,13 @@ and two pose regressors for estimating pose of both frames. This loss between pr
 ))exp(-\hat{s}_{x_{vo}}) + \hat{s}_{x_{vo}}
 + \mathcal{L}_{q}(\mathbf{\mathit{f}}(\theta|(\mathit{I}_t, \mathit{I}_{t-1})
 ))exp(-\hat{s}_{q_{vo}}) + \hat{s}_{q_{vo}}\]
-\break 
+  
 The parameters between the odometry network here, and the global pose regression network are shared. This sharing enables an inductive transfer of information between
 both networks. 
 
 \subsubsection{Learning Semantics}
 The authors propose two variants of a semantic learning branch: a single task architecture that predicts a pixel-wise segmentation mask for a monocular image, 
 and a multitask architecture that incorporates self-supervised warping and adaptive fusion layers in the segmentation process. 
-
 
 
 For the \emph{single-task architecture}, an encoder-decoder model is used. The encoder is a ResNet-50 architecture, which learns highly discriminative semantic features
@@ -269,7 +269,7 @@ The \emph{multitask architecture} utilizes a self-supervised warping method, whe
 A depth image of the previous timestep, $D_t$, is predicted using a separate network \textcite{DispNet}, and the previous image's feature maps (outputs from layers \emph{Res4f} and \emph{Res5c} of the previous timesteps - this is marked in \figurename{rw3.7} ) are now warped onto the current
 image's features. 
 
-Formally, if the projection function is $\mathbf{\pi}$, we can warp on the previous timestep's pixels $u_r$ onto the current timestep $\hat{u_r}$ with relative pose $p_{1,t-1}$
+Formally, if the projection function is $\pi$, we can warp on the previous timestep's pixels $u_r$ onto the current timestep $\hat{u_r}$ with relative pose $p_{1,t-1}$
 
 \[\hat{u_r} = \pi(T(p_{1,t-1}) \pi^{-1}(u_r, D_t(u_r)))\]
 
@@ -278,14 +278,14 @@ This operation allows robustness to camera angle deviations, object scale and fr
 learning of consistent semantics.
 
 \subsubsection{Summary}
-The final loss function is an accumulation of the semantic, odometry and absolute pose losses. The reasons behind training absolute pose, odometry and semantics 
+The final loss function is an accumulation of the semantic, odometry and absolute pose losses as defined above. The reasons behind training absolute pose, odometry and semantics 
 can be articulated with two points: to enable the absolute pose regression network to encode geometric an semantic information while training, and to enable inductive
 transfer between domain specific information. 
 
 This is the first network wherein the results of Localization is consistently equal to or better than the SfM/Feature desriptor approach. For detailed analysis of the results
 please refer the paper. 
 
-\subsection{Cross-View Localization}
+\section{Cross-View Localization}
 Cross-View Localization is the task of localizing a query image against a database of images captured from a different view than the typical query image. The most usual example is localizing a ground-view image against a database of aerial/satellite imagery.
 
 %https://openaccess.thecvf.com/content_cvpr_workshops_2015/W13/papers/Workman_On_the_Location_2015_CVPR_paper.pdf
@@ -295,24 +295,35 @@ The seminal work in this area submitted by Jacobs et.al (\textcite{Jacobs15}), w
 Their experiments were able to prove the high discriminative nature of CNNs for this purpose. The following graphs from their paper shows the performance of CNN features against the state of the art method by Lin.et.al (\textcite{Lin3}) at the time (which sought to learn the relationship between cross-view image pairs with a Support Vector machine based method).
 
 \myfig{thesis/jacobs_CNN}%% filename
-{scale=0.4}%% width/height
+{scale=0.25}%% width/height
 {AlexNet features (Jacobs et.al) vs SVM learned (Lin et.al) Cross-View Localization}%% caption
 {CNN for cross view Jacobs et.al.}%% optional (short) caption for list of figures
 {rw3.9} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
 
-Other methods that utilize CNNs for Cross View localization were then spawned. Each paper utilized a different backbone CNN architecture, and incorporated more information about the image to make the CNN output more distinctive features. 
+Other methods that utilize CNNs for Cross View localization were then spawned. These myriad methods each utilize a different backbone CNN architecture, and incorporated more information about the image to make the CNN output more distinctive features.
 
+Workman et al. submitted that fine- tuning the aerial branch by minimizing the distance between aerial and ground images results in improved localization performance.  Vo and Hays (Vo and Hays 2016) conducted thorough evaluations on the network suited best for cross-view localization: i.e. binary classification (image retrieval), Triplet or Siamese CNNs. Hu et.al stacked a NetVLAD layer upon a VGG Network to endow VGG features the viewpoint invariance that NetVLAD possesses.Liu and Li (2019) added per-pixel orientation information into their CNN so that the features learned are sensitive to pixel orientation as another discriminative feature. 
 
+We outline here a method that is state of the art in the Cross View Localization domain, and builds upon the idea of using a CNN to learn features. 
 
+\subsection{Optimal Feature Transport for Cross-View Image Geo-Localization}
+This paper by Shi et.al. deals with cross-view geo localization, the task of finding the location of a given ground-view image in a large satellite map. As we have detaile before, this paper too is based on the premise of using DCNNs to extract features that can be used for comparing a ground-view image against an aerial image database. There are however two insights that are incorporated by the authors:
+
+\begin{itemize}
+	\item Spatial layout of the features is to be taken into account - i.e. their relative position with respect to other features in the image plane. 
+	
+	\item Take into consideration that the ground and aerial images are, for the lack of a better word, of different "domains". 
 \end{itemize}
 
+To tackle both of these problems, the direct approach of learning a transport matrix to transfer the ground-domain features to the aerial domain features is utilized. 
 
+\myfig{thesis/cvft}%% filename
+{scale=0.3}%% width/height
+{The Cross View Feature Transport Module}%% caption
+{CVFT}%% optional (short) caption for list of figures
+{rw4.0} % cite paper
 
-
-
-
-
-
+Two CNN branches (VGG, Simonyan et.al.) are used to learn the aerial and ground features, but the improvisation is in the inclusion of the new feature transport module. 
 
 
 

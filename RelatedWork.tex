@@ -323,7 +323,53 @@ To tackle both of these problems, the direct approach of learning a transport ma
 {CVFT}%% optional (short) caption for list of figures
 {rw4.0} % cite paper
 
-Two CNN branches (VGG, Simonyan et.al.) are used to learn the aerial and ground features, but the improvisation is in the inclusion of the new feature transport module. 
+Two CNN branches (VGG, Simonyan et.al.) are used to learn the aerial and ground features, but the improvisation is in the inclusion of the new feature transport module. Previous approaches are similar upto the usage of two CNN branches to extract features for the aerial and ground images. However they use a feature aggregation such as pooling is used before minimizing the loss between features, which discards spatial layout information.
+
+\myfig{thesis/cvft_old}%% filename
+{scale=0.3}%% width/height
+{Older Cross-View localization architectures}%% caption
+{Previous Cross-View Architecture}%% optional (short) caption for list of figures
+{rw4.1} % cite paper
+
+The feature transport module is actually a set of cost matrices that transform ground to aerial features. This does away with the lossy aggregation operation, and explicitly models the domain change.
+
+\subsubsection{Feature Transport}
+$\mathbf{f}^i(g) \in R^{h \times w}$ and $\mathbf{f}^i(a) \in R^{h \times w}$ indicate the ground and aerial feature maps, wherein $i$ is the feature channel number an $h$ and $w$ indicate the width and height of the features.
+
+Ideally, both the ground and aerial images must be used in the computation of the cost matrix $\mathbf{C}$. For purposes of efficiency, we postpone the inclusion of aerial images to the loss function and instead use a regression block to compute $\mathbf{C}$.
+
+Our transport matrix $\mathbf{P}$, has to satisfy the following strictly convex loss condition:
+
+$\mathbf{P}^* = argmin_{P} \ <\mathbf{P}, \mathbf{C}>_F - \lambda h(\mathbf{P})
+$
+
+where $h$ is the entropy regularization, and the norm is the Frobenius norm. To minimize this particular functional objective, the Sinkhorn algorithm is utilized. The Sinkhorn algorithm first applies an exponential kernel on $\mathbf{C}$ and then iteratively converts $\mathbf{C}$ to a doubly stochastic matrix (rows and columns add up to one). If row and column normalizations are denoted as:
+
+\[\mathbf{C}' = exp(-\lambda C)\]
+\[\mathcal{N}^r_{i, j} = \frac{c'_{i,j}}{\sum_{k=1}^{N} c'_{k,j}} \]
+\[\mathcal{N}^c_{i, j} = \frac{c'_{i,j}}{\sum_{k=1}^{N}c'_{i,k}} \]
+
+For the m-th iteration, the Sinkhorn operation is given as 
+
+\[\mathbf{S}_m(\mathbf{C}') = \mathcal{N}^r(\mathcal{N}^c \mathcal{S}_{m-1}(\mathbf{C}'))\]
+
+So when the iterations converge, $\mathbf{P}^* = \mathbf{S}_m(\mathbf{C}')$.
+
+It is to be noted that the Sinkhorn operation is differentiable. Thus, when the ground feature maps are transported using the $\mathbf{P}^*$ and the loss is backpropagated, the domain transfer is also learned.
+
+\[\mathcal{L}_{triplet} = log(1 + e^{\gamma (d_{pos} - d_{neg}})\]
+
+where $d_{pos}$ and $d_{neg}$ denote hte l2 distance of all the positive and negative aerial features from the anchor ground feature. The network outperforms the state of the art at the time of its writing (CVM-Net), as outlined in the graph below:
+
+%Cite CVM Net
+
+\myfig{thesis/cvft_experiment}%% filename
+{scale=0.3}%% width/height
+{Performance of CVFT against CVM-Net on the CVUSA and CVACT datasets respectively}%% caption
+{CVFT Experiments}%% optional (short) caption for list of figures
+{rw4.1} % cite paper
+
+
 
 
 

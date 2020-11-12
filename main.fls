@@ -505,6 +505,9 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathpazo/fplmbb.tfm
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/typical_cnn.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/typical_cnn.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/typical_cnn.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/AlexNet_Architecture.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/AlexNet_Architecture.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/AlexNet_Architecture.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/RelatedWork.tex
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/RelatedWork.tex
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/traditional_localization.png
@@ -553,6 +556,12 @@ INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/the
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_old.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_old.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_old.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_experiment.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_experiment.png
+INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/cvft_experiment.png
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/Methodology.tex
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/Methodology.tex
 INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/figures/thesis/our_pipeline.png
@@ -567,6 +576,7 @@ INPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/main.run.xm
 OUTPUT /Users/chetansrinivasakumar/Downloads/UrbanMapLoc_Report_Latex/main.run.xml
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb

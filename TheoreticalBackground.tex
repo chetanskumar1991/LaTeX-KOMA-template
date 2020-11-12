@@ -235,7 +235,25 @@ CNNs are composed of three different layers:
 	\item The \textit{Fully Connected Layer} flattens the 2D feature maps into 1D vector outputs, which can then be used for conventional tasks such as classification or regression. 
 \end{itemize}
 
+\subsection{Semantic Segmentation}
+%Cite FCN
+Semantic Segmentation is the task of predicting a class label for each pixel of a given image. 
+The seminal work is the Fully Convolutional Network (FCN), which uses the features of a classification network (experiments were performed on GoogLeNet, VGG and the AlexNet) to predict a pixel-wise semantic mask for the image. 
 
+It is worth briefly looking into the details of GoogLeNet, VGG and AlexNet which are the basic classificaion networks and then proceed on to the usage of their features to predict the semantic mask via the CNN. 
+
+\subsubsection{AlexNet}
+AlexNet is of historical significance to CNN architectures, as it was the first network to win the ImageNet classification challenege and was the first to utilize the GPU to speedup its computations. It also introduced the architectural parlance that is now today's terminology of CNNs. 
+
+\myfig{thesis/AlexNet_Architecture}%% filename
+{scale=0.3}%% width/height
+{The Architecture of AlexNet}%% caption
+{AlexNet}%% optional (short) caption for list of figures
+{tb2.7} % From paper
+
+AlexNet is composed of 5 convolutional layers, 3 max-pooling layers, 2 normalization layers, 2 fully connected layers, and 1 softmax layer. Usually, the ReLU activation is used as the preferred nonlinearity. 
+
+\subsection{VGG}
 
 
 

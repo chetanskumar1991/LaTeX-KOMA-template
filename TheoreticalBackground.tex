@@ -120,7 +120,7 @@ Here, M is called the \emph{structure tensor}. We use the structure tensor to ca
 We choose as keypoint only those locations $[x\ y]$ for which R is high. At these locations, both eigenvalues are high. This means  that the error increases uniformly in all directions, and therefore the point is most likely a corner. 
 
 \subsubsection{Descriptor extraction}
-There are several handcrafted feature descriptors which describe points of interest robustly, but SIFT (Shift Invariant Feature Transform) is the foundational one and the most widely used. The SIFT detector+descriptor works basically in the following stages:
+There are several handcrafted feature descriptors which describe points of interest robustly, but SIFT (Shift Invariant Feature Transform, \cite{Lowe2004}) is the foundational one and the most widely used. The SIFT detector+descriptor works basically in the following stages:
 
 SIFT Detector:
 \begin{itemize}
@@ -141,9 +141,9 @@ SIFT Descriptor: We know the scale, location and orientation of each keypoint.
 \subsection{Feature Matching}
 Given descriptors for interest points for a pair of images (obtained perhaps with procedures like the ones outlined above), we seek to obtain corresponding points. This procedure is often done in a brute force manner for small images (each descriptor is compared to every other descriptor). However, this method is not feasible for images with a large number of features.
 
-The standard solution to the above problem is to utilize tree methods, such as K-d trees, to speed up the search for a matching descriptor candidate. A popular method is the FLANN (Fast Approximate Nearest Neighbour search algorithm).
+The standard solution to the above problem is to utilize tree methods, such as K-d trees, to speed up the search for a matching descriptor candidate. A popular method is the FLANN (Fast Approximate Nearest Neighbour search algorithm, \cite{Lowe2014}).
 
-A pair of descriptors are compared using the L1 distance (for descriptors such as SIFT, SURF, etc) or the Hamming distance (for binary descriptors such as BRIEF).
+A pair of descriptors are compared using the L1 distance (for descriptors such as SIFT, SURF, etc) or the Hamming distance (for binary descriptors such as BRIEF by \cite{Lepetit2010}).
 
 The output of this stage in the pipeline is the set of corresponding points of the image pair. 
 
@@ -215,7 +215,7 @@ $f: \mathbb{R}^n \rightarrow \mathbb{R}^m $.
 \subsection{Convolutional Neural Networks}
 The standard feedforward neural network works only to fit to vector valued functions. Input of any spatial structure would have to first be unrolled into a 1D vector before it being used in this network. However, if we wanted to preserve spatial relationships during the learning procedure (eg. with images), we would need to formulate a new architecture.
 
-Convolutional Neural Networks are the defacto method to address fitting functions to 2D data where spatial relationships are crucial. Thus, images are the most obvious and abundant sources of data for the CNN. CNNs have been applied successfully to several computer vision tasks such as segmentation, classification, object recognition, etc. and near or even superhuman performance has been achieved in these tasks.
+Convolutional Neural Networks (\cite{LeCun1999}) are the defacto method to address fitting functions to 2D data where spatial relationships are crucial. Thus, images are the most obvious and abundant sources of data for the CNN. CNNs have been applied successfully to several computer vision tasks such as segmentation, classification, object recognition, etc. and near or even superhuman performance has been achieved in these tasks.
 
 We begin by defining the application of the square shaped convolution operator \emph{H} on image \emph{I} of dimensions \emph{M $X$ N} as follows.
 
@@ -223,7 +223,8 @@ We begin by defining the application of the square shaped convolution operator \
 
 We can see that the convolution operation is a sum of the image intensities within the window, weighted by the values of the convolution kernel. For accesses outside the image area, padding (by reflection, zeros, etc.) is performed.
 
-CNNs are composed of three different layers: 
+CNNs are composed of three different layers:
+ 
 \myfig{thesis/typical_cnn}%% filename
 {scale=0.3}%% width/height
 {The Typical CNN}%% caption
@@ -238,9 +239,9 @@ CNNs are composed of three different layers:
 \subsection{Semantic Segmentation}
 %Cite FCN
 Semantic Segmentation is the task of predicting a class label for each pixel of a given image. 
-The seminal work is the Fully Convolutional Network (FCN), which uses the features of a classification network (experiments were performed on GoogLeNet, VGG and the AlexNet) to predict a pixel-wise semantic mask for the image. 
+The seminal work is the Fully Convolutional Network (FCN, \cite{Long2014}), which uses the features of a classification network (experiments were performed on GoogLeNet, VGG and the AlexNet) to predict a pixel-wise semantic mask for the image. 
 
-It is worth briefly looking into the details of GoogLeNet, VGG and AlexNet which are the basic classificaion networks and then proceed on to the usage of their features to predict the semantic mask via the CNN. 
+It is worth briefly looking into the details of GoogLeNet (\cite{Szegedy2015}), VGG (\cite{Simonyan2015}) and AlexNet (\cite{Krizhevsky2012}) which are the basic classificaion networks and then proceed on to the usage of their features to predict the semantic mask via the CNN. 
 
 \subsubsection{AlexNet}
 AlexNet is of historical significance to CNN architectures, as it was the first network to win the ImageNet classification challenege and was the first to utilize the GPU to speedup its computations. It also introduced the architectural parlance that is now today's terminology of CNNs. 

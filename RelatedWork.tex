@@ -131,21 +131,9 @@ The loss function for the CNN of PoseNet is defined as follows:
 Note that the $\beta$ parameter balances the relative importance of translation and rotation loss, and was found to function well between 250 and 2000 for outdoor scenes.
 
 \subsubsection{PoseNet Architecture}
-PoseNet utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification.
+PoseNet utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification, and we have given a brief overview of it in the Theoretical Background section.
 
-\myfig{thesis/googlenet}%% filename
-{scale=0.2}%% width/height
-{GoogLeNet Architecture}%% caption
-{GoogLeNet Architecture}%% optional (short) caption for list of figures
-{tb3.5} %
-
-The main idea of the GoogleNet was the stacking of the \textit{Inception module}, which created features of different receptive fields and aggregated them. 
-
-\myfig{thesis/Inception_module}%% filename
-{scale=0.4}%% width/height
-{Inception Module}%% caption
-{Inception Module}%% optional (short) caption for list of figures
-{tb3.5} % From OpenCV Tutorials.
+However, the following modifications were made by the authors of PoseNet to convert the GoogLeNet backbone into a pose regressor network. 
 
 \begin{itemize}
 	\item The 3 softmax classifiers were replaced with an affine regressor (fully connected layers) which output a 7-dimension vector representing pose.\\

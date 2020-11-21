@@ -6,23 +6,90 @@
 %%\chapter{Example Chapter}
 
 \chapter{Methodology}
-Our approach to the Visual Localization problem is outlined broadly by these steps:
+Our approach to the Visual Localization problem is outlined broadly by these three steps:
+
 \begin{itemize}
+	\item Upon a dataset of overlapping map tiles of an area, train a Pose Regression Network (MapNet, \cite{Brahmbhatt2018}) to predict a 2d translation from a reference map tile. \\
+	
 	\item Convert pointcloud of the urban scene into a representation with building contours as seen from the road. This is the \emph{query} map tile.\\
-	\item Upon a dataset of overlapping map tiles of an area, train a Pose Regression Network (MapNet) to predict a 2d translation from a reference map tile. \\
-	\item Infer the location of the \emph{query} map tile directly upon the map raster on which MapNet was trained. \\  
+	
+	\item With the trained MapNet, Infer the location of the \emph{query map tile} directly upon the set of map tiles on which MapNet was trained.\\  
 \end{itemize}
 
 \myfig{thesis/our_pipeline}%% filename
 {scale=0.5}%% width/height
 {Our Pipeline}%% caption
 {Our Pipeline}%% optional (short) caption for list of figures
-{tb4.1} % From OpenCV Tutorials.
+{Me1.0} 
 
-The approach can be characterized as a hybrid Pose Regression, wherein the query image is a map-tile like representation.
+The approach can be characterized as a hybrid Pose Regression, wherein the query image is a map-tile like representation. We will expound upon each of the three stages, starting with the details of training our Pose Regression network.   
+
+\section{Pose Regression}
+\subsection{MapNet}
+MapNet (\cite{Brahmbhatt2018}), is a pose regresssion network that is based on the same idea as PoseNet(\cite{Kendall2015}) which was dealt with in the previous section. However, it mitigates the problem of PoseNet in that it reduces the noisy estimations by incorporating relative motion between frames as geometric constraints in the final loss function. 
+
+\myfig{thesis/mapnet}%% filename
+{scale=0.6}%% width/height
+{MapNet Structure}%% caption
+{MapNet}%% optional (short) caption for list of figures
+{Me1.1}
+
+As illustrated in the above figure, MapNet also has additional modules called MapNet+ which incorporates relative pose information from Visual Odometry in the loss function as a further constraint while training. Pose Graph Optimization (PGO) is an additional component that allows MapNet to fuse incoming odometry information with the predictions from the network - this is done by enforcing the condition that pairwise relative poses from odometry must be positioned similar to the poses predicted by the network.
+
+However, we will be using only the basic version of MapNet - that is, the version 
+that enforces relative pose constraints between pairs of frame poses (as we get no visual odometry for map tiles).
+
+The \textit{architecture} of MapNet is basically a ResNet-34 modified as follows:
+\begin{itemize}
+	\item Add global pooling layer after the last convolution layer.
+	\item Add a fully convolutional layer of 2048 neurons with ReLU and dropout of 0.5.
+	\item Finally, finish with a fully convolutional layer that regresses the 6-dof pose. 
+\end{itemize} 
+
+However, the 6-DoF pose that is regressed is a 6 parameter vector. This is due to the fact that the rotation is parametrized as the logarithm of the unit quaternion which results in a better performance than the standard 4 parameter quaternion. 
+
+The loss function is defined as follows:
+
+\[ \mathcal{L}_D(\Theta)= \Sigma_{i=1}^{|\mathcal{D}|}h(p_i,p_i^{*})) + \Sigma_{i,j=1, i\neq j}^{|\mathcal{D}|}h(v_{ij},v_{ij}^{*}) \] 
+
+Where $v_{ij}$ is the relative pose between frames $i$ and $j$. The loss between poses $p_i$, $h(.)$, is defined as
+
+\[ h(p_i,p_i^{*}) = \|t - t^*\|e^{-\beta} + \beta + \|w - w^*\|e^{-\gamma} + \gamma \]
+
+The $\beta$ and $\gamma$ terms balance the relative importance between translation ($t$) and rotation ($w$) loss terms respectively. 
+
+\subsection{Preparing the Training Dataset}
+The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017}) depending on the city we want to localize in. We constructed two datasets for training the network, taken from sections of the Karlsruhe and Oxford city areas.
+
+\myfig{thesis/osmtrainingmaps}%% filename
+{scale=0.35}%% width/height
+{Left: Karlsruhe training map, Right: Oxford Training Map. Taken from OpenStreetMap}%% caption
+{OSM Training areas}%% optional (short) caption for list of figures
+{Me1.2}
+
+The GPS bounds for our training maps are as follows, in latlong pairs. 
+
+Oxford : 
+Karlsruhe:(49.0443, 8.3362) to (48.9974, 8.4292)
 
 
-\section{MapNet}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %% vim:foldmethod=expr
 %% vim:fde=getline(v\:lnum)=~'^%%%%\ .\\+'?'>1'\:'='

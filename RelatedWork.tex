@@ -48,15 +48,15 @@ The minimization is usually performed with the Levenberg-Marquardt algorithm.
 To obtain a robust estimate of our pose, we sample sets of points and choose that pose which has maximum overall inliers (minimum overall reprojection error). This is the basic idea of the RANSAC procedure.
 
 \section{Localization with Global Image Descriptors}
-The basic idea of image based localization is to localize a query image by using strategies to find images (of known pose) in a database that are closest to it, 
-and then compute a pose with respect to these set of "close" images. The method of comparison employed between a pair of images here is the distance between their global image descriptors.
-While localizing against a huge pointcloud, the global descriptors can be used as a preliminary step in identifying a set of candidate images to form 2D-3D associations. 
-This reduces the search space considerably for matching query image features. 
+The basic idea of image based localization is to localize a query image by using strategies to find images (of known pose) in a database that are closest to it, and then compute a pose with respect to these set of "close" images. The method of comparison employed between a pair of images here is the distance between their global image descriptors.While localizing against a huge pointcloud, the global descriptors can be used as a preliminary step in identifying a set of candidate images to form 2D-3D associations. 
+
+This reduces the search space considerably for matching query image features. The paper by \cite{Sattler2012} is typical of these class of techniques.
 
 %cite Fast Image Localization by Sattler. 
 
 \subsection{Visual Vocabulary Trees} %cite Scalable Recognition with a Vocabulary Tree David Niste ́r and Henrik Stewe ́nius
-Intuitively speaking, visual words are a histogram over frequently occuring image content. This content is usually characterized by descriptors such as SIFT, etc.
+
+\cite{Nister2006} is the seminal publication that exhibited early the possible use of Vocabulary trees to search visual cues. Intuitively speaking, visual words are a histogram over frequently occuring image content.This content is usually characterized by descriptors such as SIFT, etc.
 SIFT is the standard handcrafted descriptor for visual words, as they are highly distinctive. The general procedure to build tese visual words is detailed below:
 
 \myfig{thesis/visual_words}%% filename
@@ -79,7 +79,7 @@ level-1 node, yielding a score for each node by computing inner products with ea
 After doing this scoring for all the descriptors in the image and computing a histogram, we have our visual words description for the image. 
 
 \subsection{VLAD}
-The VLAD descriptor serves as a global image descriptor. It also uses a vocabulary tree, and is computed as follows:
+The VLAD descriptor, by \cite{Arandlejovic2013}, serves as a global image descriptor. It also uses a vocabulary tree, and is computed as follows:
 
 \begin{itemize}
 	\item Compute a visual vocabulary tree as described previously, for some database of images. \\
@@ -98,7 +98,7 @@ The VLAD descriptor can then be normalized with an L2 function, a signed squared
 cluster before concatenation, before L2 normalization).
 
 \subsection{NetVLAD}
-NetVLAD seeks to incorporate the VLAD idea into a CNN, which can potentially learn much better features than the handcrafted SIFT descriptor. However, the 
+NetVLAD, by \cite{Arandlejovic2015}, seeks to incorporate the VLAD idea into a CNN, which can potentially learn much better features than the handcrafted SIFT descriptor. However, the 
 obstacle to including VLAD as a layer would be the hard assignment of a descriptor to one of the clusters , i.e. $a_k(\mathbf{x})$. This is not differentiable. 
 To get around this problem, we change the hard assignment to a softer assignment as follows:
 
@@ -131,7 +131,7 @@ The loss function for the CNN of PoseNet is defined as follows:
 Note that the $\beta$ parameter balances the relative importance of translation and rotation loss, and was found to function well between 250 and 2000 for outdoor scenes.
 
 \subsubsection{PoseNet Architecture}
-PoseNet utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification, and we have given a brief overview of it in the Theoretical Background section.
+PoseNet, by \cite{Kendall2015} utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification.
 
 However, the following modifications were made by the authors of PoseNet to convert the GoogLeNet backbone into a pose regressor network. 
 
@@ -146,7 +146,7 @@ However, the following modifications were made by the authors of PoseNet to conv
 PoseNet was trained on image, pose pairs obtained from SfM and was able to get competitive results on standard datasets such as Cambridge and 7Scenes. It spawned several variants for visual localization that used its base architecture as a backbone, and we shall explain how we use one such variant (Mapnet) in our approach to solve the localization problem. 
 
 \subsection{VLocNet} %cite Deep Auxiliary Learning for Visual Localization and Odometry, valada et.al
-An improvement upon PoseNet was VLocNet by Valada et.al. In order to estimate the global pose of a pair of query frames accurately with respect to some scene, cues from 
+An improvement upon PoseNet was VLocNet by \cite{Valada2018}. In order to estimate the global pose of a pair of query frames accurately with respect to some scene, cues from 
 Visual Odometry (relative motion between frames) are used jointly with the global pose of the frames. The idea is that the relative motion estimates from VO would help constrict 
 the search space considerably. 
 
@@ -161,7 +161,7 @@ branch predicts $M_t$, the pixelwise semantic mask of C classes for image $I_t$
 {tb3.6} % From citation.
 
 \subsubsection{Architecture}
-The backbone network for the VLocNet shown above is a modified ResNet-50 network.
+The backbone network for the VLocNet shown above is a modified ResNet-50 network (\cite{He2015}).
 
 \myfig{thesis/ResNet50}%% filename
 {scale=0.4}%% width/height
@@ -254,7 +254,7 @@ The optimal network parameters $\theta$ is estimated by minimizing the following
 for $(I_n, M_n) \in \mathcal{T}$.
 
 The \emph{multitask architecture} utilizes a self-supervised warping method, wherein the pose of the previous timestep's image as predicted by the odometry stream is utilized.
-A depth image of the previous timestep, $D_t$, is predicted using a separate network \textcite{DispNet}, and the previous image's feature maps (outputs from layers \emph{Res4f} and \emph{Res5c} of the previous timesteps - this is marked in \figurename{rw3.7} ) are now warped onto the current
+A depth image of the previous timestep, $D_t$, is predicted using a separate network \cite{Mayer2016}, and the previous image's feature maps (outputs from layers \emph{Res4f} and \emph{Res5c} of the previous timesteps - this is marked in \figurename{rw3.7} ) are now warped onto the current
 image's features. 
 
 Formally, if the projection function is $\pi$, we can warp on the previous timestep's pixels $u_r$ onto the current timestep $\hat{u_r}$ with relative pose $p_{1,t-1}$
@@ -277,10 +277,10 @@ please refer the paper.
 Cross-View Localization is the task of localizing a query image against a database of images captured from a different view than the typical query image. The most usual example is localizing a ground-view image against a database of aerial/satellite imagery.
 
 %https://openaccess.thecvf.com/content_cvpr_workshops_2015/W13/papers/Workman_On_the_Location_2015_CVPR_paper.pdf
-The seminal work in this area submitted by Jacobs et.al (\textcite{Jacobs15}), where they fine-tuned AlexNet on ImageNet and Places datasets. They proved the efficacy of CNNs as a feature extractor for cross-view image association by creating a dataset of the Charleston San Francisco aresa as follows: aerial imagery for a predetermined 40 sq.km region was downloaded from Bing maps, and was associated by GPS tagging to ground level images obtained via various open-source image databases such as flickr and Google StreetView. The pre-trained AlexNet was fed these images, and the final layer output is taken as the corresponding feature vector. 
+The seminal work in this area submitted by \cite{Jacobs2015}, where they fine-tuned AlexNet on ImageNet and Places datasets. They proved the efficacy of CNNs as a feature extractor for cross-view image association by creating a dataset of the Charleston San Francisco aresa as follows: aerial imagery for a predetermined 40 sq.km region was downloaded from Bing maps, and was associated by GPS tagging to ground level images obtained via various open-source image databases such as flickr and Google StreetView. The pre-trained AlexNet was fed these images, and the final layer output is taken as the corresponding feature vector. 
 
 %https://www.cc.gatech.edu/~hays/papers/geolocalization_cvpr13_0421.pdf
-Their experiments were able to prove the high discriminative nature of CNNs for this purpose. The following graphs from their paper shows the performance of CNN features against the state of the art method by Lin.et.al (\textcite{Lin3}) at the time (which sought to learn the relationship between cross-view image pairs with a Support Vector machine based method).
+Their experiments were able to prove the high discriminative nature of CNNs for this purpose. The following graphs from their paper shows the performance of CNN features against the state of the art method by Lin.et.al (\cite{Lin2013}) at the time (which sought to learn the relationship between cross-view image pairs with a Support Vector machine based method).
 
 \myfig{thesis/jacobs_CNN}%% filename
 {scale=0.25}%% width/height
@@ -295,7 +295,7 @@ Workman et al. submitted that fine- tuning the aerial branch by minimizing the d
 We outline here a method that is state of the art in the Cross View Localization domain, and builds upon the idea of using a CNN to learn features. 
 
 \subsection{Optimal Feature Transport for Cross-View Image Geo-Localization}
-This paper by Shi et.al. deals with cross-view geo localization, the task of finding the location of a given ground-view image in a large satellite map. As we have detaile before, this paper too is based on the premise of using DCNNs to extract features that can be used for comparing a ground-view image against an aerial image database. There are however two insights that are incorporated by the authors:
+This paper by \cite{Shi2019}. deals with cross-view geo localization, the task of finding the location of a given ground-view image in a large satellite map. As we have detailed before, this paper too is based on the premise of using DCNNs to extract features that can be used for comparing a ground-view image against an aerial image database. There are however two insights that are incorporated by the authors:
 
 \begin{itemize}
 	\item Spatial layout of the features is to be taken into account - i.e. their relative position with respect to other features in the image plane. 
@@ -311,7 +311,7 @@ To tackle both of these problems, the direct approach of learning a transport ma
 {CVFT}%% optional (short) caption for list of figures
 {rw4.0} % cite paper
 
-Two CNN branches (VGG, Simonyan et.al.) are used to learn the aerial and ground features, but the improvisation is in the inclusion of the new feature transport module. Previous approaches are similar upto the usage of two CNN branches to extract features for the aerial and ground images. However they use a feature aggregation such as pooling is used before minimizing the loss between features, which discards spatial layout information.
+Two CNN branches (VGG, \cite{Simonyan2015}.) are used to learn the aerial and ground features, but the improvisation is in the inclusion of the new feature transport module. Previous approaches are similar upto the usage of two CNN branches to extract features for the aerial and ground images. However they use a feature aggregation such as pooling is used before minimizing the loss between features, which discards spatial layout information.
 
 \myfig{thesis/cvft_old}%% filename
 {scale=0.3}%% width/height
@@ -347,7 +347,7 @@ It is to be noted that the Sinkhorn operation is differentiable. Thus, when the 
 
 \[\mathcal{L}_{triplet} = log(1 + e^{\gamma (d_{pos} - d_{neg}})\]
 
-where $d_{pos}$ and $d_{neg}$ denote hte l2 distance of all the positive and negative aerial features from the anchor ground feature. The network outperforms the state of the art at the time of its writing (CVM-Net), as outlined in the graph below:
+where $d_{pos}$ and $d_{neg}$ denote the l2 distance of all the positive and negative aerial features from the anchor ground feature. The network outperforms the state of the art at the time of its writing (CVM-Net, \cite{Hu2018}), as outlined in the graph below:
 
 %Cite CVM Net
 

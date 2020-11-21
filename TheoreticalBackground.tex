@@ -251,9 +251,49 @@ AlexNet is of historical significance to CNN architectures, as it was the first 
 {AlexNet}%% optional (short) caption for list of figures
 {tb2.7} % From paper
 
-AlexNet is composed of 5 convolutional layers, 3 max-pooling layers, 2 normalization layers, 2 fully connected layers, and 1 softmax layer. Usually, the ReLU activation is used as the preferred nonlinearity. 
+AlexNet is composed of 5 convolutional layers, 3 max-pooling layers, 2 normalization layers, 2 fully connected layers, and 1 softmax layer. Usually, the ReLU activation is used as the preferred nonlinearity. It addresses the problem of overfitting to data by using the principles of Dropout and data augmentation. 
 
-\subsection{VGG}
+\subsubsection{VGG}
+
+VGG is an AlexNet derivative, but made with the following improvements.
+
+\myfig{thesis/VGG_Architecture}%% filename
+{scale=0.2}%% width/height
+{The Architecture of VGG}%% caption
+{VGG}%% optional (short) caption for list of figures
+{tb2.8} % From paper
+
+VGG, has several differences that separates it from similar models. 
+Unlike AlexNet that uses large receptive fields, VGG uses small receptive fields (3x3 kernel with stride 1). The addition of 3 ReLU units makes the decision function more discriminative. There are also fewer parameters. VGG uses 1x1 convolutions to make the decision function behave in a more non-linear manner without changing the receptive fields.
+The smaller convolution filters allows VGG to have a larger number of weight layers, which leads to improved performance. This, however, is a feature shared by GoogLeNet, which is delineated in the next section. 
+
+\subsubsection{GoogLeNet}
+
+The main idea behind the GoogleNet architecture was the use of the \emph{Inception} module, which created features of different receptive fields and aggregated them. Note the addition of the 1x1 convolutions from the previous layer before convolution with the set of kernels, just to reduce dimensionality of the incoming feature volume. 
+
+\myfig{thesis/Inception_module}%% filename
+{scale=0.4}%% width/height
+{Inception Module}%% caption
+{Inception Module}%% optional (short) caption for list of figures
+{tb2.9} % From OpenCV Tutorials.
+
+The GoogleNet has a depth of 22 layers, with 27 pooling layers. It consists of 9 inception modules stacked linearly in total, where the ends of the inception module is connected to a global average pooling layer. The intuition is that we learn features of varying receptive fields, each of which "zoom-out" with a stacking of an inception module. The below figure depicts pictorially the architecture of the GoogLeNet:
+
+\myfig{thesis/googlenet}%% filename
+{scale=0.2}%% width/height
+{GoogLeNet Architecture}%% caption
+{GoogLeNet Architecture}%% optional (short) caption for list of figures
+{tb2.10} %
+
+\subsubsection{Fully Convolutional Networks for Semantic Segmentation}
+
+
+
+
+
+
+
+
 
 
 

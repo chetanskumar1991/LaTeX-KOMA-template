@@ -22,7 +22,7 @@ Once we have the features of the query image, we can associate them with corresp
 
 \myfig{thesis/traditional_localization}%% filename
 {scale=0.4}%% width/height
-{Feature Based Localization}%% caption
+{Feature Based Localization, taken from Torsten Sattler's ECCV'18 slides}%% caption
 {Feature Based Localization}%% optional (short) caption for list of figures
 {tb3.1} % From Torsten Sattler's ECCV 2018 Visual Localization Slides.
 
@@ -33,7 +33,7 @@ Now that we know which 3D points are visible from the query image, we can try to
 
 \myfig{thesis/PnP_Algorithm}%% filename
 {scale=0.4}%% width/height
-{Perspective-n-Pose Algorithm}%% caption
+{Perspective-n-Pose Algorithm, taken from OpenCV Tutorials}%% caption
 {PnP Algorithm}%% optional (short) caption for list of figures
 {tb3.2} % From OpenCV Tutorials.
 
@@ -61,7 +61,7 @@ SIFT is the standard handcrafted descriptor for visual words, as they are highly
 
 \myfig{thesis/visual_words}%% filename
 {scale=0.25}%% width/height
-{Construction of the visual words with hierarchical k-means tree}%% caption
+{Construction of the visual words with hierarchical k-means tree, taken from \cite{Nister2006}}%% caption
 {Visual Words}%% optional (short) caption for list of figures
 {tb3.3} % From citation
 
@@ -114,7 +114,7 @@ for the linear part, and then a softmax for the normalization. Overall, the impl
 
 \myfig{thesis/netvlad}%% filename
 {scale=0.25}%% width/height
-{The NetVLAD network architecture}%% caption
+{The NetVLAD network architecture, taken from \cite{Arandlejovic2015}}%% caption
 {NetVLAD}%% optional (short) caption for list of figures
 {tb3.4} % From citation
 
@@ -156,16 +156,16 @@ branch predicts $M_t$, the pixelwise semantic mask of C classes for image $I_t$
 
 \myfig{thesis/vlocnet}%% filename
 {scale=0.4}%% width/height
-{VLocNet architecture}%% caption
+{VLocNet architecture, taken from \cite{Valada2018}}%% caption
 {VLocNet}%% optional (short) caption for list of figures
-{tb3.6} % From citation.
+{rw3.6} % From citation.
 
 \subsubsection{Architecture}
 The backbone network for the VLocNet shown above is a modified ResNet-50 network (\cite{He2015}).
 
 \myfig{thesis/ResNet50}%% filename
 {scale=0.4}%% width/height
-{ResNet50 architecture}%% caption
+{ResNet50 architecture, taken from \cite{Mahmood2020}}%% caption
 {ResNet50}%% optional (short) caption for list of figures
 {rw3.7} % From Automatic Hierarchical Classification of Kelps Using Deep Residual Features.
 
@@ -176,7 +176,7 @@ However, the ResNet50 is modified as follows:
 	
 	\myfig{thesis/ReLUvELU}%% filename
     {scale=0.4}%% width/height
-    {The ReLU and the ELU activation functions}%% caption
+    {The ReLU and the ELU activation functions, taken from https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426}%% caption
     {ReLU v ELU}%% optional (short) caption for list of figures
 	{rw3.8} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
 
@@ -284,7 +284,7 @@ Their experiments were able to prove the high discriminative nature of CNNs for 
 
 \myfig{thesis/jacobs_CNN}%% filename
 {scale=0.25}%% width/height
-{AlexNet features (Jacobs et.al) vs SVM learned (Lin et.al) Cross-View Localization}%% caption
+{AlexNet features (Jacobs et.al) vs SVM learned (Lin et.al) Cross-View Localization, taken from \cite{Jacobs2015}}%% caption
 {CNN for cross view Jacobs et.al.}%% optional (short) caption for list of figures
 {rw3.9} % https://medium.com/hyunjulie/activation-functions-a-short-summary-8450c1b1d426
 
@@ -307,7 +307,7 @@ To tackle both of these problems, the direct approach of learning a transport ma
 
 \myfig{thesis/cvft}%% filename
 {scale=0.3}%% width/height
-{The Cross View Feature Transport Module}%% caption
+{The Cross View Feature Transport Module, taken from \cite{Shi2019}}%% caption
 {CVFT}%% optional (short) caption for list of figures
 {rw4.0} % cite paper
 
@@ -315,7 +315,7 @@ Two CNN branches (VGG, \cite{Simonyan2015}.) are used to learn the aerial and gr
 
 \myfig{thesis/cvft_old}%% filename
 {scale=0.3}%% width/height
-{Older Cross-View localization architectures}%% caption
+{Older Cross-View localization architectures, taken from \cite{Shi2019}}%% caption
 {Previous Cross-View Architecture}%% optional (short) caption for list of figures
 {rw4.1} % cite paper
 
@@ -353,7 +353,7 @@ where $d_{pos}$ and $d_{neg}$ denote the l2 distance of all the positive and neg
 
 \myfig{thesis/cvft_experiment}%% filename
 {scale=0.3}%% width/height
-{Performance of CVFT against CVM-Net on the CVUSA and CVACT datasets respectively}%% caption
+{Performance of CVFT against CVM-Net on the CVUSA and CVACT datasets respectively, taken from \cite{Shi2019}}%% caption
 {CVFT Experiments}%% optional (short) caption for list of figures
 {rw4.1} % cite paper
 

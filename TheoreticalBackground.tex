@@ -22,7 +22,7 @@ We shall describe the basic ideas of each stage of the pipeline, as relevant to 
 \subsection{Camera Calibration}
 Consider the case of projecting a point in 3D to a the image 2D plane, outlined in the figure below. The 2D point $\mathbf{x}$ can be described by the ray $\lambda[u\ v\ 1]^T$ in projective space.
 
-The 3D point $\mathbf{x}$ can be projected onto the image plane by a projection matrix $\mathbf{P}$, thusly:
+The 3D point $\mathbf{x}$ can be projected onto the image plane by a projection matrix $\mathbf{P}$, thus:
 
 \[\mathbf{x} = \mathbf{PX} = \mathbf{K[R|t]X}\]
 
@@ -30,7 +30,7 @@ Note the decomposition of the projection matrix $\mathbf{P}$ as $\mathbf{K[R|t})
 
 \myfig{thesis/pinhole_camera}%% filename
 {scale=0.6}%% width/height
-{Pinhole Camera}%% caption
+{Pinhole Camera - taken from \cite{schoenberger2018}}%% caption
 {Pinhole Camera}%% optional (short) caption for list of figures
 {tb2.2}
 
@@ -42,7 +42,7 @@ f & s & c_x\\
 0 & 0 & 1
 \end{bmatrix}\]
 
-$f$ is the focal length, and $c_x, c_y$ is the principal point. $s$ is the shear angle between the axes, and a is the aspect ratio. Multiplying a homogenous coordinate in 3-space will clearly lead to a shift by the principal point, and scaling by $f$ upon perspective division. 
+$f$ is the focal length, and $c_x, c_y$ is the principal point. $s$ is the shear angle between the axes, and a is the aspect ratio. Multiplying a homogenous coordinate in 3d-space will lead to a shift by the principal point, and scaling by $f$ upon perspective division. 
 
 The aim of Camera Calibration is to recover the intrinsics and/or extrinsics. If we denote the 3D points as $\mathbf{X}$, and the corresponding 2D points as $\mathbf{x}$, we can formulate the following set of equations:
 
@@ -92,9 +92,10 @@ For accurate SfM, it is crucial to get a good estimation of the camera projectio
 \subsection{Feature Extraction}
 Features are descriptions of special locations of the image that are invariant under transformations of the image, spatial or otherwise. 
 
-Features can either be learned, or handcrafted. We outline the fundamentals of handcrafted features here as we use only those in our pipeline.
+Features can either be learned, or handcrafted. We outline the fundamentals of handcrafted features, as only these are potentially relevant in our pipeline to construct pointclouds.
+
 \subsubsection{Keypoint Extraction}
-We first have to identify interesting points in the image before we can invariantly describe them. The standard keypoint detector is the Harris detector, upon which most other handcrafted detectors are based. We outline below the central ideas of the Harris detector. 
+We first have to identify interesting points in the image before we can invariantly describe them. One standard keypoint detector is the Harris detector, upon which most other handcrafted detectors are based. We outline below the central ideas of the Harris detector. 
 
 Without loss of generality, assume that a grayscale image I is used. For a small shift of $[\Delta x \ \Delta y]^T$ of some pixel located at $[x \ y]^T$ in a window W of the image I:
 
@@ -153,7 +154,7 @@ Given a set of corresponding points in a two-view setting, we can check for the 
 
 \myfig{thesis/triangulation}%% filename
 {scale=0.6}%% width/height
-{Triangulation in SfM}%% caption
+{Triangulation in SfM, taken from \cite{schoenberger2018}}%% caption
 {Triangulation}%% optional (short) caption for list of figures
 {tb2.3}
 
@@ -186,7 +187,7 @@ The nesting level is called \emph{layer} in neural network parlance.
 
 \myfig{thesis/neural_nets}%% filename
 {scale=0.6}%% width/height
-{Typical neural network architecture}%% caption
+{Typical neural network architecture, taken from the DeepAI website}%% caption
 {Neural Net Architecture}%% optional (short) caption for list of figures
 {tb2.4} % From DeepAi
 
@@ -199,8 +200,8 @@ This deeply composed function has enough degrees of freedom to theoretically fit
 Gradient descent relies on varying the weights in the direction of the gradient of the loss function w.r.t the weights - this is the direction of steepest descent. However, to apply this procedure, we must first obtain the gradient of the loss function w.r.t the weights. This is obtained by a procedure christened \emph{backpropagation}.
 
 \myfig{thesis/backprop}%% filename
-{scale=0.6}%% width/height
-{The Backpropagation Algorithm}%% caption
+{scale=0.4}%% width/height
+{The Backpropagation Algorithm, taken from http://neuralnetworksanddeeplearning.com }%% caption
 {Backpropagation}%% optional (short) caption for list of figures
 {tb2.5} % From http://neuralnetworksanddeeplearning.com/chap2.html
 
@@ -226,9 +227,10 @@ We can see that the convolution operation is a sum of the image intensities with
 CNNs are composed of three different layers: 
 \myfig{thesis/typical_cnn}%% filename
 {scale=0.3}%% width/height
-{The Typical CNN}%% caption
+{The Typical CNN, taken from Wikipedia}%% caption
 {Typical CNN}%% optional (short) caption for list of figures
 {tb2.6} % From wikipedia
+
 \begin{itemize}
 	\item The \textit{Convolution Layer}, where the output is a set of images (called feature maps), that are the results of convolution of the input layer by a set of kernels of a certain dimension. \\
 	\item The \textit{Pooling/Subsampling Layer}, where a cluster of points around a each point is considered. The average or maximum of this cluster is taken as the output, thereby reducing the dimensionality of the feature maps. \\ 
@@ -247,7 +249,7 @@ AlexNet is of historical significance to CNN architectures, as it was the first 
 
 \myfig{thesis/AlexNet_Architecture}%% filename
 {scale=0.3}%% width/height
-{The Architecture of AlexNet}%% caption
+{The Architecture of AlexNet, taken from \cite{Krizhevsky2012}}%% caption
 {AlexNet}%% optional (short) caption for list of figures
 {tb2.7} % From paper
 
@@ -259,7 +261,7 @@ VGG is an AlexNet derivative, but made with the following improvements.
 
 \myfig{thesis/VGG_Architecture}%% filename
 {scale=0.2}%% width/height
-{The Architecture of VGG}%% caption
+{The Architecture of VGG, atken from \cite{Simonyan2015}}%% caption
 {VGG}%% optional (short) caption for list of figures
 {tb2.8} % From paper
 
@@ -273,7 +275,7 @@ The main idea behind the GoogleNet architecture was the use of the \emph{Incepti
 
 \myfig{thesis/Inception_module}%% filename
 {scale=0.4}%% width/height
-{Inception Module}%% caption
+{Inception Module, taken from \cite{Szegedy2015}}%% caption
 {Inception Module}%% optional (short) caption for list of figures
 {tb2.9} % From OpenCV Tutorials.
 
@@ -281,7 +283,7 @@ The GoogleNet has a depth of 22 layers, with 27 pooling layers. It consists of 9
 
 \myfig{thesis/googlenet}%% filename
 {scale=0.2}%% width/height
-{GoogLeNet Architecture}%% caption
+{GoogLeNet Architecture, taken from \cite{Karri2017}}%% caption
 {GoogLeNet Architecture}%% optional (short) caption for list of figures
 {tb2.10} %
 

@@ -239,8 +239,7 @@ CNNs are composed of three different layers:
 
 \subsection{Semantic Segmentation}
 %Cite FCN
-Semantic Segmentation is the task of predicting a class label for each pixel of a given image. 
-The seminal work is the Fully Convolutional Network (FCN), which uses the features of a classification network (experiments were performed on GoogLeNet, VGG and the AlexNet) to predict a pixel-wise semantic mask for the image. 
+Semantic Segmentation is the task of predicting a class label for each pixel of a given image. The seminal work is the Fully Convolutional Network (FCN), which uses the features of a classification network (experiments were performed on GoogLeNet, VGG and the AlexNet) to predict a pixel-wise semantic mask for the image. 
 
 It is worth briefly looking into the details of GoogLeNet, VGG and AlexNet which are the basic classificaion networks and then proceed on to the usage of their features to predict the semantic mask via the CNN. 
 
@@ -288,6 +287,47 @@ The GoogleNet has a depth of 22 layers, with 27 pooling layers. It consists of 9
 {tb2.10} %
 
 \subsubsection{Fully Convolutional Networks for Semantic Segmentation}
+Fully Convolutional Neural Networks (FCNs) by \cite{long2015} in the use of CNNs for Semantic Segmentation.  
+
+FCNs start with a backbone classification network (such as AlexNet, VGG or GoogLeNet which we have described above), but with several adaptations which we will describe now. 
+
+In classification, conventionally, an input image is downsized and goes through the convolution layers and fully connected (FC) layers, and output one predicted label for the input image, as follows:
+
+Conventional classification networks downsize the input image before sending them through the convolution and fully connected (FC) layers before predicting one label for the image, as shown in the below:
+
+\myfig{thesis/fcn_normal_classification}%% filename
+{scale=0.3}%% width/height
+{Conventional classification networks, taken from \cite{long2015}}%% caption
+{Conventional classification}%% optional (short) caption for list of figures
+{tb2.11} %
+
+If we turn the FC layers into 1x1 convolutional layers and the image is not downsized, the output will not be a single label. The output is blown back to the input image resolution by upsampling (bilinear interpolation). 
+
+\myfig{thesis/fcn_actual_pred}%% filename
+{scale=0.3}%% width/height
+{Fully Convolutional Layer, taken from \cite{long2015}}%% caption
+{Fully Convolutional Layer}%% optional (short) caption for list of figures
+{tb2.12}
+
+Note that we can lose a lot of fine features while going through the pooling operations of the network, so the earlier features containing finer information are added onto the later stages as shown below:
+
+\myfig{thesis/fcn_architecture}%% filename
+{scale=0.2}%% width/height
+{FCN structure, taken from \cite{long2015}}%% caption
+{FCN structure}%% optional (short) caption for list of figures
+{tb2.13}
+
+Depending on the stage at which we upsample and fuse features, we get FCN-32, FCN-16 and FCN-8's. Obviously, FCN-8's produce the best performance as it gets closest to the input resolution and incorporates fine and coarse feature fusions at several scales. 
+
+FCNs were built on by several authors incorporating more refinement stages (\cite{badrinarayanan2016}), efficient non-linear upsampling  schemes  (\cite{liu2015}),  adding  global  context () \cite{zhao2017})  and pyramid pooling for context aggregation. \cite{yu2016} proposed  a  context  module  the  uses  dilated  convolutions  to enlarge  the  receptive  field.  \cite{chen2017}  proposed  using multiple parallel dilated convolutions with different sampling rates  for  multi-scale  learning  in  addition  to  using  CRFs  for post-processing. \cite{Valada2017} introduced multi-scale residual blocks  with  dilated  convolutions  as  parallel  convolutions  to enable faster inference without compromising the performance.
+
+
+
+
+
+
+
+
 
 
 

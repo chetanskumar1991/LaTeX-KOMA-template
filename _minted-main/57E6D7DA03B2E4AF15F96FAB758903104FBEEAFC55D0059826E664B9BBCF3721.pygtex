@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{gps2xy}\PYG{p}{(}\PYG{n}{lat\PYGZus{}deg}\PYG{p}{,} \PYG{n}{lon\PYGZus{}deg}\PYG{p}{,} \PYG{n}{zoom}\PYG{p}{):}
+    \PYG{n}{lat\PYGZus{}rad} \PYG{o}{=} \PYG{n}{math}\PYG{o}{.}\PYG{n}{radians}\PYG{p}{(}\PYG{n}{lat\PYGZus{}deg}\PYG{p}{)}
+    \PYG{n}{n} \PYG{o}{=} \PYG{l+m+mf}{2.0} \PYG{o}{**} \PYG{n}{zoom}
+    \PYG{n}{xtile} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{((}\PYG{n}{lon\PYGZus{}deg} \PYG{o}{+} \PYG{l+m+mf}{180.0}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{360.0} \PYG{o}{*} \PYG{n}{n}\PYG{p}{)}
+    \PYG{n}{ytile} \PYG{o}{=} \PYG{n+nb}{float}\PYG{p}{((}\PYG{l+m+mf}{1.0} \PYG{o}{\PYGZhy{}} \PYG{n}{math}\PYG{o}{.}\PYG{n}{asinh}\PYG{p}{(}\PYG{n}{math}\PYG{o}{.}\PYG{n}{tan}\PYG{p}{(}\PYG{n}{lat\PYGZus{}rad}\PYG{p}{))} \PYG{o}{/} \PYG{n}{math}\PYG{o}{.}\PYG{n}{pi}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{2.0} \PYG{o}{*} \PYG{n}{n}\PYG{p}{)}
+    \PYG{k}{return} \PYG{p}{(}\PYG{n}{xtile}\PYG{p}{,} \PYG{n}{ytile}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{xy2gps}\PYG{p}{(}\PYG{n}{xtile}\PYG{p}{,} \PYG{n}{ytile}\PYG{p}{,} \PYG{n}{zoom}\PYG{p}{):}
+    \PYG{n}{n} \PYG{o}{=} \PYG{l+m+mf}{2.0} \PYG{o}{**} \PYG{n}{zoom}
+    \PYG{n}{lon\PYGZus{}deg} \PYG{o}{=} \PYG{n}{xtile} \PYG{o}{/} \PYG{n}{n} \PYG{o}{*} \PYG{l+m+mf}{360.0} \PYG{o}{\PYGZhy{}} \PYG{l+m+mf}{180.0}
+    \PYG{n}{lat\PYGZus{}rad} \PYG{o}{=} \PYG{n}{math}\PYG{o}{.}\PYG{n}{atan}\PYG{p}{(}\PYG{n}{math}\PYG{o}{.}\PYG{n}{sinh}\PYG{p}{(}\PYG{n}{math}\PYG{o}{.}\PYG{n}{pi} \PYG{o}{*} \PYG{p}{(}\PYG{l+m+mi}{1} \PYG{o}{\PYGZhy{}} \PYG{l+m+mi}{2} \PYG{o}{*} \PYG{n}{ytile} \PYG{o}{/} \PYG{n}{n}\PYG{p}{)))}
+    \PYG{n}{lat\PYGZus{}deg} \PYG{o}{=} \PYG{n}{math}\PYG{o}{.}\PYG{n}{degrees}\PYG{p}{(}\PYG{n}{lat\PYGZus{}rad}\PYG{p}{)}
+    \PYG{k}{return} \PYG{p}{(}\PYG{n}{lat\PYGZus{}deg}\PYG{p}{,} \PYG{n}{lon\PYGZus{}deg}\PYG{p}{)}
+\end{Verbatim}

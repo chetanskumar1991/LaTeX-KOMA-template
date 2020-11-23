@@ -128,7 +128,7 @@ PoseNet takes as input a 224x224 RGB image, and regresses the 6-DoF pose of that
 The loss function for the CNN of PoseNet is defined as follows:
 \[loss(I) = \mathbf{\|\hat{x} - x\|}_2 + \beta\mathbf{\|q - \dfrac{q}{\|q\|}\|}_2\]
 
-Note that the $\beta$ parameter balances the relative importance of translation and rotation loss, and was found to function well between 250 and 2000 for outdoor scenes.
+Note that the $\beta$ parameter balances the relative importance of translation and rotation loss.
 
 \subsubsection{PoseNet Architecture}
 PoseNet, by \cite{Kendall2015} utilizes as backbone the GoogleNet Architecture. GoogleNet is a 22 layer deep CNN which was state of the art at the time for classification.
@@ -143,7 +143,7 @@ However, the following modifications were made by the authors of PoseNet to conv
 	\item Normalize quaternion orientation vector to unit length at test time. \\ 
 \end{itemize}
 
-PoseNet was trained on image, pose pairs obtained from SfM and was able to get competitive results on standard datasets such as Cambridge and 7Scenes. It spawned several variants for visual localization that used its base architecture as a backbone, and we shall explain how we use one such variant (Mapnet) in our approach to solve the localization problem. 
+PoseNet was trained on image, pose pairs obtained from SfM and was able to get competitive results on standard datasets such as Cambridge and 7Scenes. It spawned several variants for visual localization that used its base architecture as a backbone, and we shall explain how we use one such variant (Mapnet) in our approach to solve the localization problem, as detailed in the next chapter. 
 
 \subsection{VLocNet} %cite Deep Auxiliary Learning for Visual Localization and Odometry, valada et.al
 An improvement upon PoseNet was VLocNet by \cite{Valada2018}. In order to estimate the global pose of a pair of query frames accurately with respect to some scene, cues from 
@@ -186,6 +186,7 @@ However, the ResNet50 is modified as follows:
 
 	Instead of directly regressing the pose from the network, an following extra step is introduced: the fusion of the previous timestep's final downsampling layer output
 with that of the current timestep's final downsampling layer output. This happens for pairs of frames in a sequence, and forces the network to learn motion cues in the sequence.
+
 This scheme in combination with the \emph{Geometric consistency loss} described in the following section enables the network to learn motion-specific cues in the 
 temporal dimension.
 

@@ -4,8 +4,8 @@
 %% scrartcl and scrreprt starts with section, subsection, subsubsection, ...
 %% scrbook starts with part (optional), chapter, section, ...
 %%\chapter{Example Chapter}
-
 \chapter{Methodology}
+\label{Methodology}
 Our approach to the Visual Localization problem is outlined broadly by these three steps:
 
 \begin{itemize}
@@ -58,7 +58,9 @@ Where $v_{ij}$ is the relative pose between frames $i$ and $j$. The loss between
 
 The $\beta$ and $\gamma$ terms balance the relative importance between translation ($t$) and rotation ($w$) loss terms respectively. 
 
-\subsection{Preparing the Training Dataset}
+\subsection{The Dataset}
+
+\subsubsection{About the Dataset}
 The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017}) depending on the city we want to localize in. We constructed two datasets for training the network, taken from sections of the Karlsruhe and Oxford city areas.
 
 \myfig{thesis/osmtrainingmaps}%% filename
@@ -69,8 +71,53 @@ The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017})
 
 The GPS bounds for our training maps are as follows, in latlong pairs. 
 
-Oxford : 
-Karlsruhe:(49.0443, 8.3362) to (48.9974, 8.4292)
+Oxford : (51.76868, -1.2730) to (51.73128, -1.192703).\\
+Karlsruhe:(49.0443, 8.3362) to (48.9974, 8.4292).
+
+The map is required to be of an urban area is chosen such that the number of buildings in the area is maximized, as building layout is after all the main discriminating feature for the entire pipeline. 
+
+\subsubsection{Obtaining the Map Tiles}
+The map, when obtained from OpenStreetMap is downloaded as a .mbtiles database file. One can use any Geographic Information System (GIS) software (we used QGIS), to select a rectangular area on this map containing the area upon which we want to localize and save this area as a set of tiles. In QGIS, this facility can be found under teh \emph{Raster Tools} menu of the Toolbar.
+
+We can choose to save the tiles at whatever zoom we want. For us, zoom-level 19 is the most suitable as it details approximately a 100m section of the road and buildings around it.
+
+\myfig{thesis/osm_zoom_details}%% filename
+{scale=0.35}%% width/height
+{Open Street Map tiles zoom-level details. Taken from OpenStreetMap}%% caption
+{OSM tile zoom details}%% optional (short) caption for list of figures
+{Me1.3}
+
+Tiles obtained thus are saved in a folder, organized as images descending down the y-axis in a subfolder denoting the x-axis going to the right. These xy coordinates have a direct conversion to GPS coordinates, and back as follows:
+
+\begin{minted}{python}
+def gps2xy(lat_deg, lon_deg, zoom):
+    lat_rad = math.radians(lat_deg)
+    n = 2.0 ** zoom
+    xtile = float((lon_deg + 180.0) / 360.0 * n)
+    ytile = float((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
+    return (xtile, ytile)
+
+def xy2gps(xtile, ytile, zoom):
+    n = 2.0 ** zoom
+    lon_deg = xtile / n * 360.0 - 180.0
+    lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+    lat_deg = math.degrees(lat_rad)
+    return (lat_deg, lon_deg)
+\end{minted}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

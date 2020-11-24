@@ -79,7 +79,7 @@ The map is required to be of an urban area is chosen such that the number of bui
 \subsubsection{Obtaining the Map Tiles}
 The map, when obtained from OpenStreetMap is downloaded as a .mbtiles database file. One can use any Geographic Information System (GIS) software (we used QGIS), to select a rectangular area on this map containing the area upon which we want to localize and save this area as a set of tiles. In QGIS, this facility can be found under teh \emph{Raster Tools} menu of the Toolbar.
 
-We can choose to save the tiles at whatever zoom we want. For us, zoom-level 19 is the most suitable as it details approximately a 100m section of the road and buildings around it.
+We can choose to save the tiles at whatever zoom-level we want. For the purpose of our experiments, zoom-level 19 is the most suitable as it details approximately a 100 meter section of the road and buildings around it.
 
 \myfig{thesis/osm_zoom_details}%% filename
 {scale=0.35}%% width/height
@@ -87,7 +87,7 @@ We can choose to save the tiles at whatever zoom we want. For us, zoom-level 19 
 {OSM tile zoom details}%% optional (short) caption for list of figures
 {Me1.3}
 
-Tiles obtained thus are saved in a folder, organized as images descending down the y-axis in a subfolder denoting the x-axis going to the right. These xy coordinates have a direct conversion to GPS coordinates, and back as follows:
+Map tiles obtained thus are saved in a folder, organized as images descending down the y-axis in a subfolder denoting the x-axis going to the right. These xy coordinates have a direct conversion to GPS coordinates, and back as follows:
 
 \begin{minted}{python}
 def gps2xy(lat_deg, lon_deg, zoom):
@@ -104,6 +104,72 @@ def xy2gps(xtile, ytile, zoom):
     lat_deg = math.degrees(lat_rad)
     return (lat_deg, lon_deg)
 \end{minted}
+
+\subsubsection{Readying the Map Tiles for training}
+We cannot use the tiles obtained from OSM directly, as the query tiles we obtain will often contain incomplete information. This is directly due to the fact that the view from the car moving on a road does not contain the entire contour of the buildings around it, only a certain portion of the view. 
+
+\myfig{thesis/carview}%% filename
+{scale=0.15}%% width/height
+{Incomplete view of buildings from a moving car. Note that only two facades of the building are visible. Taken from the Oxford Robotcar dataset,  \cite{newman2017}}%% caption
+{Car typical view}%% optional (short) caption for list of figures
+{Me1.4}
+
+In the above figure we see that only two facades of the building are visible, which means that after processing the information from this scene we get an incomplete map tile. To make our system robust to this possibly incomplete information, we endeavour to make the  \textit{input map tiles resemble a rendering from the car point of view}.
+
+\myfig{thesis/tile_road_pov}%% filename
+{scale=0.6}%% width/height
+{Left: road points sampled on a typical tile. Right: a rendering of the same tile as seen from the road points,  \cite{newman2017}}%% caption
+{Tile Road POV}%% optional (short) caption for list of figures
+{Me1.5}
+
+The typical map tile contains roads and buildings in separate colours, and thus we can sample points on the road of the tile. From these points, we can check which parts of the buildings are visible by checking where rays shooting out in all directions from the road points intersect the buildings. With this procedure we get the rendering on the right side of the above figure. 
+
+\subsubsection{Assigning poses to tiles}
+Conventionally, two successive frames fed to a pose regression network usually see the same scene but for a small forward motion. There is overlap between two successive frames which enables learning motion cues. 
+
+However, two map tiles ordinarily have no overlap. This we can rectify by creating new tiles positioned in between two successive tiles. The higher the number of new tiles we interpolate between any two given tiles, the better the dataset is for training features for a given trajectory.For our purposes, we interpolate 4 new tiles between any two successive tiles positioned at increasing intervals of $0.25 * tilewidth$. 
+
+The sequence in which we present the tiles from training (\textit{trajectory}), starts from the top-left tile, moves to the right and then resumes again from the left once the row of tiles has run out. This, however, can by any continuous sequence of tiles.
+
+\myfig{thesis/tilepose}%% filename
+{scale=0.4}%% width/height
+{Choose the top-left tile as origin, and assign pose to every other tile. Taken from Google Maps}%% caption
+{Tile Pose}%% optional (short) caption for list of figures
+{Me1.6}
+
+We then choose the first tile in the trajectory as the origin, and assign the 2d offset from every tile to the pose of the first tile as the pose of that tile. In the 6-dof scheme our tiles are not rotated, scaled or have any freedom in the z-axis. In other words, we only have reduced the 6-dof pose regression to 2-dof pose regression directly on the map raster. 
+
+\subsection{Creating the Query Tile}
+We assume the scenario of a car driving through an urban area, with buildings visible on either side. Operating under this assumption, we adhere to the following procedure to generate the query tile:
+
+\begin{itemize}
+	\item Acquire pointcloud of the surrounding scene for a distance of approximately 100 meters of traversal.\\
+	\item Semantically label pointcloud into buildings and roads.\\
+	\item Project buildings onto the road plane. Sample points from the road plane and render building contours as seen from the road. \\
+	\item Rotate this map-tile like representation to align with the true north, and scale it to the resolution of zoom-level 19 OSM tiles.
+\end{itemize}
+
+We will expound each of these steps.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

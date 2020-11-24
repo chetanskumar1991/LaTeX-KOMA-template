@@ -208,7 +208,7 @@ Gradient descent relies on varying the weights in the direction of the gradient 
 Backpropagation is actually a sequential application of the \emph{chain rule}. 
 If our error function is $L$, then backpropagating to find the weights of the first layer $W_0$ would function as follows:
 
-\[\frac{\partial E}{\partial W^{(0)}} =  \underbrace{\underbrace{\frac{\partial E}{\partial y^{(l)}} \frac{\partial y^{(l)}}{\partial z^{(l)}}}_{\delta^{(l)}} \frac{\partial z^{(l)}}{\partial y^{(l-1)}} \frac{\partial y^{(l-1)}}{\partial z^{(l-1)}}}_{\delta^{(l-1)}} \textellipsis \frac{\partial y^{(1)}}{\partial W_{(0)}}\]
+\[\frac{\partial E}{\partial W^{(0)}} =  \underbrace{\underbrace{\frac{\partial E}{\partial y^{(l)}} \frac{\partial y^{(l)}}{\partial z^{(l)}}}_{\delta^{(l)}} \frac{\partial z^{(l)}}{\partial y^{(l-1)}} \frac{\partial y^{(l-1)}}{\partial z^{(l-1)}}}_{\delta^{(l-1)}} \dots \frac{\partial y^{(1)}}{\partial W_{(0)}}\]
 
 The above architecture can technically learn to fit any function 
 $f: \mathbb{R}^n \rightarrow \mathbb{R}^m $.

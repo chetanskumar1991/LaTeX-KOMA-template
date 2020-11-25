@@ -149,7 +149,61 @@ We assume the scenario of a car driving through an urban area, with buildings vi
 	\item Rotate this map-tile like representation to align with the true north, and scale it to the resolution of zoom-level 19 OSM tiles.
 \end{itemize}
 
-We will expound each of these steps.
+We will expound upon each of these steps now.
+
+\subsubsection{Acquisition of Pointcloud}
+
+\myfig{thesis/lidar_cloud}%% filename
+{scale=0.3}%% width/height
+{Typical LIDAR point cloud. Constructed from the Oxford Robotcar Dataset}%% caption
+{LIDAR pointcloud}%% optional (short) caption for list of figures
+{Me1.7}
+
+There exist several ways in which we can acquire the pointcloud from a moving car. An inexpensive way to accomplish this would be to use cameras to capture a sequence of frames of the surrounding scene, and exploit geometric constraints between successive frames to construct a 3D representation. This technique is called Visual Odometry, and its foundations lie in Structure from Motion which we have described in some detail in a previous section. \cite{Mur-Artal2018}, \cite{Schops2019}, and \cite{Das2018} are popular state of the art Visual Odometry methods applicable to our scenario to get pointclouds.
+
+However, most Autonomous Driving setups can safely be assumed to possess a LIDAR sensor. The LIDAR sensor gives us depth measurements within a certain range (usually more than 50 meters) at any given time, and one can combine these depth measurements and the vehicle pose at the timestamp from the Inertial Measurement Unit to yield a pointcloud for a sequence of timestamps. 
+
+For the purpose of this thesis, we will assume the presence of LIDAR and IMU sensor data for the construction of the pointcloud. 
+
+\subsubsection{Pointcloud Segmentation}
+
+We only require the points composing buildings and roads from the pointcloud to construct our map-tile representation of the scene. To accomplish this goal, we can use one of two techniques: 
+
+\begin{itemize}
+	\item Directly label the pointcloud using Pointcloud segmentation methods based on Deep Learning. Popular methods include \cite{qi2016} and \cite{alnaggar2020}.\\
+	
+	\item Project the pointcloud to segmented camera images with known poses, and infer labels thus. 
+\end{itemize}
+
+We do not use the first approach of segmenting the pointcloud directly, as the network has to be retrained to cope with different kinds of urban scenes. The lack of generalization makes it hard to deploy quickly or reliably. 
+
+Instead, we implement the second approach. The intuition is that if we have constructed a pointcloud for a certain time period, then it can be projected to images taken in that time period (provided that their poses are known). We then decide the label of each pointcloud point by voting on which label it projects to on the set of images. More precisely, we outline the pseudocode for labeling below:
+
+\begin{algorithm}
+\caption{Algorithm to label pointcloud by projecting to images}
+\begin{algorithmic}
+\REQUIRE $I_j = \{l_{(x,y)}\}$, the set of labels for all locations $(x,y)$ in the image plane of image $I_j$.
+\\$I = \{I_1, I_2,..I_N\}$, the set of segmented images for associated with the pointcloud.
+\\$T = \{T_1, T_2,...T_N\}$, the set of absolute poses corresponding to each image.
+\\$P = \{p_1, p_2, ...p_M\}$, the set of 3d points in the pointcloud. 
+
+
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

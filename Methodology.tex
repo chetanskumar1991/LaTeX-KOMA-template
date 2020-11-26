@@ -182,14 +182,24 @@ Instead, we implement the second approach. The intuition is that if we have cons
 \begin{algorithm}
 \caption{Algorithm to label pointcloud by projecting to images}
 \begin{algorithmic}
-\REQUIRE $I_j = \{l_{(x,y)}\}$, the set of labels for all locations $(x,y)$ in the image plane of image $I_j$.
-\\$I = \{I_1, I_2,..I_N\}$, the set of segmented images for associated with the pointcloud.
-\\$T = \{T_1, T_2,...T_N\}$, the set of absolute poses corresponding to each image.
-\\$P = \{p_1, p_2, ...p_M\}$, the set of 3d points in the pointcloud. 
-
-
+\REQUIRE $I_j(x,y) = \{l_{(x,y)}\}$, the set of labels for all locations $(x,y)$ in the image plane of image $I_j$.\\
+$I = \{I_1, I_2,..I_N\}$, the set of segmented images for associated with the pointcloud.\\
+$T = \{T_1, T_2,...T_N\}$, the set of absolute poses corresponding to each image.\\
+$P = \{p_1, p_2, ...p_M\}$, the set of 3d points in the pointcloud. \\
+\vspace{5 mm}
+\textbf{foreach} $p_k$ in $P$:\\
+   
+   \hspace{5 mm} label-list: initialize an empty list for voting on a label for $p_k$\\
+    \hspace{5 mm}\textbf{foreach} $T_j$ in $T$:\\
+      \hspace{5 mm}\hspace{5 mm}$l$ = $I(T_j p_k)$\\
+      \hspace{5 mm}\hspace{5 mm}push label $l$ onto the label-list\\
+the label of $p_k$ is the label that occurs most in label-list\\
 \end{algorithmic}
 \end{algorithm}
+
+
+
+
 
 
 

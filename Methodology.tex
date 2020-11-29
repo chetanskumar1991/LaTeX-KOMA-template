@@ -153,7 +153,7 @@ We will expound upon each of these steps now.
 
 \subsubsection{Acquisition of Pointcloud}
 
-\myfig{thesis/lidar_cloud}%% filename
+\myfig{thesis/typical_pointcloud}%% filename
 {scale=0.3}%% width/height
 {Typical LIDAR point cloud. Constructed from the Oxford Robotcar Dataset}%% caption
 {LIDAR pointcloud}%% optional (short) caption for list of figures
@@ -196,6 +196,64 @@ $P = \{p_1, p_2, ...p_M\}$, the set of 3d points in the pointcloud. \\
 the label of $p_k$ is the label that occurs most in label-list\\
 \end{algorithmic}
 \end{algorithm}
+
+\myfig{thesis/typical_pointcloud_seg}%% filename
+{scale=0.3}%% width/height
+{Segmentation of the pointcloud (Red: Building, Green: Road). Note noisy segmentation of trees as building.}%% caption
+{LIDAR pointcloud segmentation}%% optional (short) caption for list of figures
+{Me1.8}
+
+The voting policy for labelling keypoints helps to mitigate the noise, but inaccuracies of the IMU will inevitably lead to mislabelings. We resort to a series of procedures which we will describe in the following section.
+
+\subsubsection{Conversion of the labelled pointcloud to map tile}
+Once we have labelled the pointcloud as building and road, we can fit a plane through the road points. For this we use open3d's (\cite{zhou2018}) plane segmentation method.
+
+Once we have the road plane, we can project the building points onto it. The value of the projected pixel will be the "height" of the building point i.e. its distance from the road plane. 
+
+\myfig{thesis/pcl2flat}%% filename
+{scale=0.3}%% width/height
+{Left: Labelled pointcloud, Right: Projecting pointcloud on to the road plane}%% caption
+{Pointcloud and Projection}%% optional (short) caption for list of figures
+{Me1.9}
+
+We then sample points "behind" both the upper and lower buildings as illustrated, and do ray-intersection tests in all directions from these points to trace out building contours. This way, we avoid hitting tree and other random noise which we would encounter if we shot our sampling rays from somewhere on the road. 
+
+\myfig{thesis/flat2ray}%% filename
+{scale=0.3}%% width/height
+{Left: Projected Pointcloud, Right: Sampling of projected pointcloud from points behind the buildings using omnidirectional line-intersections.}%% caption
+{Projection and Sampled Projection}%% optional (short) caption for list of figures
+{Me2.0}
+
+We then scan each column of this projected image, and keep only the 5 points with highest height (i.e. the 5 points which corresponds to building points of maximum height). This strategy is useful to discard noisy tree points which are often lower than the tops of the buildings. 
+
+\myfig{thesis/ray2ref}%% filename
+{scale=0.29}%% width/height
+{Left: Sampled projection, Right: Noise reduction of sampled projection by keeping highest pixels per column}%% caption
+{Sampled projection and Refined sampled projection}%% optional (short) caption for list of figures
+{Me2.1}
+
+This strategy does lead to images where most noisy points mixed with building points are removed. However, several images have only trees on one side and no buildings at all. In this case, our simple approach will keep the trees as it is only a way to filter noise assuming presence of buildings. 
+
+\pagebreak
+\subsubsection{Rotation to align with True North, and scaling to OSM tile resolution}
+The map-like representation that we get from the previous step is at an arbitrary resolution, and is not aligned with the OSM map tile direction. To be used for inference, this projected tile has to be aligned in the true north direction. 
+
+As we assume the presence of a gyroscope, we can get the attitude (orientation of the car with respect to the magnetic north) of the car for the duration of the trajectory for which we have constructed our query tile. To align with the \textit{True North} which is the default orientation of the OSM tile, we must add the magnetic declineation of the car to the attitude. The magnetic declineation is dependent on the latitude, and can be queried from most standard GIS libraries. We use \textit{geomap} for this purpose (https://github.com/amiralis/geo-mapper).
+
+\myfig{thesis/ref2osm}%% filename
+{scale=0.3}%% width/height
+{Left: Final Sampled Projection rotated to align with true north, Right: Corresponding map tile from OSM. Alignment is good.}%% caption
+{Final Sampled Projection and Corresponding OSM Tile}%% optional (short) caption for list of figures
+{Me2.2}
+
+We must also make sure that our query-tile is at a resolution similar to OSM map tiles. We do this by calculating the extremal points of the road, and accumulate the distance travelled in meters for the map tile (with car measurements, or IMU). With this, we have an estimate of the pixel per meter resolution for our query tile. We will scale this so that it matches OSM map tile resolution (0.298 meters/pixel for the Oxford Dataset).
+
+However, it must be noted that our scaling to OSM resolution is not precise as we cannot calculate the exact pixels travelled in case of a non-linear road. This may lead to noisy estimates during inference. 
+
+
+
+
+
 
 
 

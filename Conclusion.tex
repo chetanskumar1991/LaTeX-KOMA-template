@@ -1,0 +1,17 @@
+\chapter{Conclusion}
+The route we take to make the our query tiles exactly similar in content, scale and orientation to the Open Street Map tile at that location is not necessarily always robust. This is due to inaccuracies in transferring image labels to the pointcloud, and as mapping pixel/metre resolution of query tile to road resolution is not always accurate as we have access only to the distance travelled on the road.
+	
+As we have proved before in our evaluation section, such perturbations will lead to a noisy predictions. 
+
+In the future, we aim to improve the pipeline to function at a production level in the following possible ways:
+
+\begin{itemize}
+\item We can make the pose regression network robust to possibly noisy tiles. A possible way to deal with this problem is to train a Convolutional Neural Network to filter out the noisy top-down projection of the pointcloud to produce a clean query map tile, or train our Pose Regression network to be robust to noisy tiles during pose inference.
+\\
+\item To deal with inaccurate scaling, it is desirable to either incorporate data augmentation with scaling during training or rework the backbone network to be more robust to the scale variations of map tiles. 
+\\
+\item Instead of focusing on being robust to noise, we can take the route of utilizing the now-popular pointcloud segmentation networks to directly get less noisier labelings of our LIDAR pointclouds. This will implicitly lead to more accurate query map-tile creations.
+\\
+\item Finally, we can do a more exhaustive hyperparameter search on the existing network parameters and tune the existing architecture of MapNet to better suit the specific problem of regressing pose off OSM tiles. The overlap between tiles while creating the training dataset will definitely have a strong influence on the results, and its effect must be explored more exhaustively. 
+\end{itemize}
+

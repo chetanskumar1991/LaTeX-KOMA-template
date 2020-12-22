@@ -123,19 +123,6 @@ Similarly, we vary the scale of the query tiles and check the prediction error s
 	\caption{Effect of scaling on localization. We check the error for scaling steps of 0.4 scale increments for the entire dataset, and show that as deviations from the actual orientation yields higher errors.}
 \end{figure}
 
-\pagebreak
-\subsubsection{Translation}
-As we cannot easily discretize the translation the way we did rotation and scaling, we simply randomly perturb each tile in both x and y directions in the range $(0, img\_width)$, and $(0, img\_height)$.\\
-
-\begin{figure}
-	\begin{longtable}{cc}
-		\centering
-		\subfloat[Random translation]{\includegraphics[width = 1.5in]{figures/thesis/plt_folder/translate_error_0}}&
-		\subfloat[Random translation error distribution]{\includegraphics[width = 1.5in]{figures/thesis/plt_folder/translate_hist_0}}
-\end{longtable}
-\caption{Effect of translation on localization. We check the error for random translations of the original tiles, and show that as deviations from the actual location yields higher errors.}
-\end{figure}
-
 \subsection{Evaluation on query tiles constructed from the actual Oxford Sequence}
 
 As we have stated, we evaluate our method on the Oxford Robotcar Dataset (\textcite{newman2017}). All the sequences of the RobotCar dataset are runs on a fixed route in different times and conditions. We choose the sequence \textbf{2015-03-17-11-08-44} for our evaluations.
@@ -167,33 +154,215 @@ As we have described in our methodology section, we create query map tiles at th
 We show below statistics of our system's performance:
 
 \myfig{thesis/error_gps_query.png}%% filename
-{scale=0.3}%%oxford_dataset_traj.png width/height
+{scale=0.5}%%oxford_dataset_traj.png width/height
 {Blue - GPS positions of ground truth. Red - GPS positions of prediction}%% caption
 {Query prediction GPS}%% optional (short) caption for list of figures
 {Ev1.9}
 
+\myfig{thesis/pred_1.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction. Locations with errors rounded to 1 Tile Width}%% caption
+{Query prediction less than 1 Tile Width}%% optional (short) caption for list of figures
+{Ev2.0}
+
+\myfig{thesis/pred_2.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction.Locations with errors rounded to 2 Tile Width}%% caption
+{Query prediction less than 2 Tile Width}%% optional (short) caption for list of figures
+{Ev2.1}
+
+\myfig{thesis/pred_3.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction. Locations with errors rounded to 3 Tile Width}%% caption
+{Query prediction less than 3 Tile Width}%% optional (short) caption for list of figures
+{Ev2.2}
+
+\myfig{thesis/pred_4.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction. Locations with errors rounded to 4 Tile Width}%% caption
+{Query prediction less than 4 Tile Width}%% optional (short) caption for list of figures
+{Ev2.3}
+
+\myfig{thesis/pred_5.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction. Locations with errors rounded to 5 Tile Width}%% caption
+{Query prediction less than 5 Tile Width}%% optional (short) caption for list of figures
+{Ev2.4}
+
+\myfig{thesis/pred_6.png}%% filename
+{scale=0.3}%%oxford_dataset_traj.png width/height
+{Blue - GPS positions of ground truth. Red - GPS positions of prediction. Locations with errors rounded to 6 Tile Width}%% caption
+{Query prediction less than 6 Tile Width}%% optional (short) caption for list of figures
+{Ev2.5}
+
 \myfig{thesis/error_hist_query.png}%% filename
 {scale=0.5}%%oxford_dataset_traj.png width/height
-{Error distribution over 237 query locations in tile units}%% caption
+{Localization error distribution over 237 locations in Oxford Trajectory}%% caption
 {Query prediction error distribution}%% optional (short) caption for list of figures
-{Ev2.0}
+{Ev2.6}
 
 \myfig{thesis/error_graph_query.png}%% filename
 {scale=0.2}%%oxford_dataset_traj.png width/height
 {Error plot in tile units over the 237 query locations}%% caption
 {Query prediction error plot}%% optional (short) caption for list of figures
-{Ev2.1}
+{Ev2.6}
 
 \pagebreak
 We observe that the predictions are within 6 tile widths of the ground truth (this translates to approximately 600 meters). However, it has to be noted that we are able to narrow down the location to within a 6 tile radius (a search space of at most 91 tiles), given that the total search space is approximately 2500 tiles. 
 
+\subsubsection{A qualitative evaluation of the results}
+We display here a set of (constructed tile, predicted tile) pairs to get a sense of how exactly the MapNet pose regressor behaves in this setting.
 
- 
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/3_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/4_pred.png}}\\
+	\end{longtable}
+\end{figure}
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/1.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 1 Tile Width}
+\end{figure}
+
+\pagebreak
+We note that the prediction manages to find structure quite similar to the kind of structure present in the query tiles. Note that as long as noise conforms somewhat to the true contours of the buildings around them, we get a good prediction that is close to the location of the query tile.
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/3_pred.png}}\\
+	    \subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/4_pred.png}}\\
+	\end{longtable}
+\end{figure}
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/2.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 2 Tile Width}
+\end{figure}
+
+\pagebreak
+Looking at a few tiles with localization error of less than 2 tile widths, we observe that the network predicts tiles with similar structures which conform well to the original structure but are led astray by noise. 
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/3_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/4_pred.png}}
+	\end{longtable}
+\end{figure}
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/3.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 3 Tile Width}
+\end{figure}
+
+\pagebreak
+We still observe that the predictions are structurally similar to query tiles, but cannot be on point thanks to the noise contributed by trees segmented as buildings. 
 
 
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/3_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/4_pred.png}}
+	\end{longtable}
+\end{figure}
 
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/4.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 4 Tile Width}
+\end{figure}
 
+\pagebreak
+Structural similarity is still observable in the predictions, but noise confuses the network because it doesn't conform to the true building outline to give a good enough prediction. 
 
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/3_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/4_pred.png}}
+	\end{longtable}
+\end{figure}
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/5.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 5 Tile Width}
+\end{figure}
+
+\pagebreak
+Structural similarity is still observable in the predictions, but noise confuses the network because it doesn't conform to the true building outline to give a good enough prediction. 
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\centering
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/1_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/1_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/2_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/2_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/3_gt.png}} &
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/3_pred.png}}\\
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/4_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/4_pred.png}}
+	\end{longtable}
+\end{figure}
+
+\begin{figure}
+	\begin{longtable}{cc}
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/5_gt.png}}&
+		\subfloat{\includegraphics[width = 1.5in]{figures/thesis/evals/6.0/5_pred.png}}
+	\end{longtable}
+	\caption{Left - query tile, Right - Predicted tile on raster. Examples with Localization errors less than 6 Tile Width}
+\end{figure}
+
+\pagebreak
+Structural similarity is still observable in the predictions, but noise confuses the network because it doesn't conform to the true building outline to give a good enough prediction. 
 
 
 

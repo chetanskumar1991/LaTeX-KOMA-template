@@ -6,7 +6,7 @@
 %%\chapter{Example Chapter}
 \chapter{Methodology}
 \label{Methodology}
-Our approach to the Visual Localization problem is outlined broadly by these three steps:
+Our approach to the Visual Localization problem is outlined broadly by these three steps. See fig \ref{Me1.0}:
 
 \begin{itemize}
 	\item Upon a dataset of overlapping map tiles of an area, train a Pose Regression Network (MapNet, \cite{Brahmbhatt2018}) to predict a 2d translation from a reference map tile. \\
@@ -24,6 +24,15 @@ Our approach to the Visual Localization problem is outlined broadly by these thr
 
 The approach can be characterized as a hybrid Pose Regression, wherein the query image is a map-tile like representation. We will expound upon each of the three stages, starting with the details of training our Pose Regression network.   
 
+As we have built our system on the Oxford Robotcar dataset, we assume the presence of the following sensors:
+
+\begin{itemize}
+	\item 2D LIDAR sensors with a field of view of 270 degrees.
+	\item Inertial Motion Unit (IMU) equipped with GPS and Gyroscope. 
+	\item Multiple cameras covering the entire field of view.
+\end{itemize}
+
+
 \newpage
 \section{Pose Regression}
 \subsection{MapNet}
@@ -35,7 +44,7 @@ MapNet (\cite{Brahmbhatt2018}), is a pose regresssion network that is based on t
 {MapNet}%% optional (short) caption for list of figures
 {Me1.1}
 
-As illustrated in the above figure, MapNet also has additional modules called MapNet+ which incorporates relative pose information from Visual Odometry in the loss function as a further constraint while training. 
+As illustrated in fig \ref{Me1.1}, MapNet also has additional modules called MapNet+ which incorporates relative pose information from Visual Odometry in the loss function as a further constraint while training. 
 
 Pose Graph Optimization (PGO) is an additional component that allows MapNet to fuse incoming odometry information with the predictions from the network - this is done by enforcing the condition that pairwise relative poses from odometry must be positioned similar to the poses predicted by the network.
 
@@ -64,7 +73,7 @@ The $\beta$ and $\gamma$ terms balance the relative importance between translati
 \subsection{The Dataset}
 
 \subsubsection{About the Dataset}
-The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017}) depending on the city we want to localize in. We constructed two datasets for training the network, taken from sections of the Karlsruhe and Oxford city areas.
+The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017}) depending on the city we want to localize in. We constructed a dataset for training the network, taken from a section of the Oxford city area, see fig \ref{Me1.2}.
 
 \myfig{thesis/osmtrainingmaps}%% filename
 {scale=0.3}%% width/height
@@ -79,7 +88,7 @@ The map is required to be of an urban area is chosen such that the number of bui
 \subsubsection{Obtaining the Map Tiles}
 The map, when obtained from OpenStreetMap is downloaded as a .mbtiles database file. One can use any Geographic Information System (GIS) software (we used QGIS), to select a rectangular area on this map containing the area upon which we want to localize and save this area as a set of tiles. In QGIS, this facility can be found under teh \emph{Raster Tools} menu of the Toolbar.
 
-We can choose to save the tiles at whatever zoom-level we want. For the purpose of our experiments, zoom-level 19 is the most suitable as it details approximately a 100 meter section of the road and buildings around it.
+We can choose to save the tiles at whatever zoom-level we want. For the purpose of our experiments, zoom-level 19 is the most suitable as it details approximately a 100 meter section of the road and buildings around it. See fig \ref{Me1.3} for details on zoom levels:
 
 \myfig{thesis/osm_zoom_details}%% filename
 {scale=0.5}%% width/height
@@ -106,7 +115,7 @@ def xy2gps(xtile, ytile, zoom):
 \end{minted}
 
 \subsubsection{Readying the Map Tiles for training}
-We cannot use the tiles obtained from OSM directly, as the query tiles we obtain will often contain incomplete information. This is directly due to the fact that the view from the car moving on a road does not contain the entire contour of the buildings around it, only a certain portion of the view. 
+We cannot use the tiles obtained from OSM directly, as the query tiles we obtain will often contain incomplete information. This is directly due to the fact that the view from the car moving on a road does not contain the entire contour of the buildings around it, only a certain portion of the view (fig \ref{Me1.4}). 
 
 \myfig{thesis/carview}%% filename
 {scale=0.15}%% width/height
@@ -118,18 +127,18 @@ In the above figure we see that only two facades of the building are visible, wh
 
 \myfig{thesis/tile_road_pov}%% filename
 {scale=0.6}%% width/height
-{Left: road points sampled on a typical tile. Right: a rendering of the same tile as seen from the road points,  \cite{newman2017}}%% caption
+{Left: road points sampled on a typical tile. Right: a rendering of the same tile as seen from the road points,  \cite{newman2017}. On the left tile, buildings are colored orange and the road is blue. Red dots are points from where ray tests are made to create the right POV tile.}%% caption
 {Tile Road POV}%% optional (short) caption for list of figures
 {Me1.5}
 
-The typical map tile contains roads and buildings in separate colours, and thus we can sample points on the road of the tile. From these points, we can check which parts of the buildings are visible by checking where rays shooting out in all directions from the road points intersect the buildings. With this procedure we get the rendering on the right side of the above figure. 
+The typical map tile contains roads and buildings in separate colours, and thus we can sample points on the road of the tile. From these points, we can check which parts of the buildings are visible by checking where rays shooting out in all directions from the road points intersect the buildings. With this procedure we get the rendering on the right side of \ref{Me1.5}. 
 
 \subsubsection{Assigning poses to tiles}
-Conventionally, two successive frames fed to a pose regression network usually see the same scene but for a small forward motion. There is overlap between two successive frames which enables learning motion cues. 
+MapNet assumes that the training image frames are presented in a sequence with poses associated with each frame. Conventionally, two successive frames fed to a pose regression network usually see the same scene but for a small forward motion. There is overlap between two successive frames which enables learning motion cues. 
 
-However, two map tiles ordinarily have no overlap. This we can rectify by creating new tiles positioned in between two successive tiles. The higher the number of new tiles we interpolate between any two given tiles, the better the dataset is for training features for a given trajectory.For our purposes, we interpolate 4 new tiles between any two successive tiles positioned at increasing intervals of $0.25 * tilewidth$. 
+However, two map tiles ordinarily have no overlap. This we can rectify by creating new tiles positioned in between two successive tiles. The higher the number of new tiles we interpolate between any two given tiles, the better the dataset is for training features for a given trajectory.For our purposes, we interpolate 4 new tiles between any two successive tiles positioned at increasing intervals of 0.25 of the tile width. 
 
-The sequence in which we present the tiles from training (\textit{trajectory}), starts from the top-left tile, moves to the right and then resumes again from the left once the row of tiles has run out. This, however, can by any continuous sequence of tiles.
+The sequence in which we present the tiles during training, starts from the top-left tile, moves to the right and then resumes again from the left once the row of tiles has run out. This, however, can by any continuous sequence of tiles.
 
 \myfig{thesis/tilepose}%% filename
 {scale=0.4}%% width/height
@@ -137,7 +146,7 @@ The sequence in which we present the tiles from training (\textit{trajectory}), 
 {Tile Pose}%% optional (short) caption for list of figures
 {Me1.6}
 
-We then choose the first tile in the trajectory as the origin, and assign the 2d offset from every tile to the pose of the first tile as the pose of that tile. In the 6-dof scheme our tiles are not rotated, scaled or have any freedom in the z-axis. In other words, we only have reduced the 6-dof pose regression to 2-dof pose regression directly on the map raster. 
+We then choose the first tile in the trajectory as the origin, and assign the 2d offset from every tile to the pose of the first tile as the pose of that tile (fig \ref{Me1.6}). In the 6-dof scheme our tiles are not rotated, scaled or have any freedom in the z-axis. In other words, we only have reduced the 6-dof pose regression to 2-dof pose regression directly on the map raster. 
 
 \subsection{Creating the Query Tile}
 We assume the scenario of a car driving through an urban area, with buildings visible on either side. Operating under this assumption, we adhere to the following procedure to generate the query tile:

@@ -1,4 +1,9 @@
 \chapter{Conclusion}
+We have demonstrated in our work thus far that we can localize directly a car driving through an urban locale directly upon a map raster of that area. We have shown that a pose regression network trained with overlapping tiles of some map area is able to localize the car's position, given a query map tile constructed from the scene. We've shown also a method to create a suitable training OSM tile set for a given area, taking into account issues such as the car's vield of view.
+
+This being an initial formulation of the approach, we outlined how to construct the query map tile using labeled pointclouds. We've also described an approach to mitigating noise in the labeling of the pointcloud, which leads to an improved query map tile construction. 
+
+\subsection{Future Work}
 The route we take to make the our query tiles exactly similar in content, scale and orientation to the Open Street Map tile at that location is not necessarily always robust. This is due to inaccuracies in transferring image labels to the pointcloud, and as mapping pixel/metre resolution of query tile to road resolution is not always accurate as we have access only to the distance travelled on the road.
 	
 As we have proved before in our evaluation section, such perturbations will lead to a noisy predictions. 

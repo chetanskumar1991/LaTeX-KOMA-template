@@ -17,29 +17,32 @@ Our approach to the Visual Localization problem is outlined broadly by these thr
 \end{itemize}
 
 \myfig{thesis/our_pipeline}%% filename
-{scale=0.5}%% width/height
-{Our Pipeline}%% caption
+{scale=0.6}%% width/height
+{Our Pipeline: The input images are segmented, and their labels are transferred onto the pointcloud constructed from the scene. This labelled pointcloud is then converted into a map-tile like representation complete with OSM scale and orientation and is used as a query tile to infer the position of the vehicle directly on the map raster.}%% caption
 {Our Pipeline}%% optional (short) caption for list of figures
 {Me1.0} 
 
 The approach can be characterized as a hybrid Pose Regression, wherein the query image is a map-tile like representation. We will expound upon each of the three stages, starting with the details of training our Pose Regression network.   
 
+\newpage
 \section{Pose Regression}
 \subsection{MapNet}
 MapNet (\cite{Brahmbhatt2018}), is a pose regresssion network that is based on the same idea as PoseNet(\cite{Kendall2015}) which was dealt with in the previous section. However, it mitigates the problem of PoseNet in that it reduces the noisy estimations by incorporating relative motion between frames as geometric constraints in the final loss function. 
 
 \myfig{thesis/mapnet}%% filename
-{scale=0.6}%% width/height
-{MapNet Structure}%% caption
+{scale=0.615}%% width/height
+{MapNet Architecture. Mapnet considers both absolute and relative poses for pose regression, enforcing the predictions of the DNN to fit both the absolute pose of the ground truth and the relative positions supplied by Visual Odometry and other modalities such as IMU.}%% caption
 {MapNet}%% optional (short) caption for list of figures
 {Me1.1}
 
-As illustrated in the above figure, MapNet also has additional modules called MapNet+ which incorporates relative pose information from Visual Odometry in the loss function as a further constraint while training. Pose Graph Optimization (PGO) is an additional component that allows MapNet to fuse incoming odometry information with the predictions from the network - this is done by enforcing the condition that pairwise relative poses from odometry must be positioned similar to the poses predicted by the network.
+As illustrated in the above figure, MapNet also has additional modules called MapNet+ which incorporates relative pose information from Visual Odometry in the loss function as a further constraint while training. 
+
+Pose Graph Optimization (PGO) is an additional component that allows MapNet to fuse incoming odometry information with the predictions from the network - this is done by enforcing the condition that pairwise relative poses from odometry must be positioned similar to the poses predicted by the network.
 
 However, we will be using only the basic version of MapNet - that is, the version 
 that enforces relative pose constraints between pairs of frame poses (as we get no visual odometry for map tiles).
 
-The \textit{architecture} of MapNet is basically a ResNet-34 modified as follows:
+The architecture of MapNet is basically a ResNet-34 modified as follows:
 \begin{itemize}
 	\item Add global pooling layer after the last convolution layer.
 	\item Add a fully convolutional layer of 2048 neurons with ReLU and dropout of 0.5.
@@ -52,7 +55,7 @@ The loss function is defined as follows:
 
 \[ \mathcal{L}_D(\Theta)= \Sigma_{i=1}^{|\mathcal{D}|}h(p_i,p_i^{*})) + \Sigma_{i,j=1, i\neq j}^{|\mathcal{D}|}h(v_{ij},v_{ij}^{*}) \] 
 
-Where $v_{ij}$ is the relative pose between frames $i$ and $j$. The loss between poses $p_i$, $h(.)$, is defined as
+The loss here penalizes any deviation from the absolute pose, and any deviation from the relative pose of the ground truth odometry. Here $v_{ij}$ is the relative pose between frames $i$ and $j$. The loss between poses $p_i$, $h(.)$, is defined as
 
 \[ h(p_i,p_i^{*}) = \|t - t^*\|e^{-\beta} + \beta + \|w - w^*\|e^{-\gamma} + \gamma \]
 
@@ -64,15 +67,12 @@ The $\beta$ and $\gamma$ terms balance the relative importance between translati
 The Dataset that we train MapNet on is drawn from OpenStreetMap (\cite{osm2017}) depending on the city we want to localize in. We constructed two datasets for training the network, taken from sections of the Karlsruhe and Oxford city areas.
 
 \myfig{thesis/osmtrainingmaps}%% filename
-{scale=0.35}%% width/height
-{Left: Karlsruhe training map, Right: Oxford Training Map. Taken from OpenStreetMap}%% caption
-{OSM Training areas}%% optional (short) caption for list of figures
+{scale=0.3}%% width/height
+{Training map for Oxford area. Taken from OpenStreetMap}%% caption
+{OSM Training area}%% optional (short) caption for list of figures
 {Me1.2}
 
-The GPS bounds for our training maps are as follows, in latlong pairs. 
-
-Oxford : (51.76868, -1.2730) to (51.73128, -1.192703).\\
-Karlsruhe:(49.0443, 8.3362) to (48.9974, 8.4292).
+The GPS bounds are: (51.76868, -1.2730) to (51.73128, -1.192703).
 
 The map is required to be of an urban area is chosen such that the number of buildings in the area is maximized, as building layout is after all the main discriminating feature for the entire pipeline. 
 
@@ -82,7 +82,7 @@ The map, when obtained from OpenStreetMap is downloaded as a .mbtiles database f
 We can choose to save the tiles at whatever zoom-level we want. For the purpose of our experiments, zoom-level 19 is the most suitable as it details approximately a 100 meter section of the road and buildings around it.
 
 \myfig{thesis/osm_zoom_details}%% filename
-{scale=0.35}%% width/height
+{scale=0.5}%% width/height
 {Open Street Map tiles zoom-level details. Taken from OpenStreetMap}%% caption
 {OSM tile zoom details}%% optional (short) caption for list of figures
 {Me1.3}

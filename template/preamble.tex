@@ -407,6 +407,12 @@ BCOR=\myBCOR,        %% binding correction (depends on how you bind
 %doc% Depending on what font or symbols you use, you might not even need this.
 %doc% Removing this package will at worst result in a warning.
 \usepackage{textcomp}
+
+\newcommand*{\figuretitle}[1]{%
+	{\centering%   <--------  will only affect the title because of the grouping (by the
+		\textbf{#1}%              braces before \centering and behind \medskip). If you remove
+		\par\medskip}%            these braces the whole body of a {figure} env will be centered.
+}
 %% Source: https://www.ctan.org/pkg/textcomp
 
 %doc%
@@ -560,7 +566,7 @@ BCOR=\myBCOR,        %% binding correction (depends on how you bind
 \usepackage[backend=biber, %% using "biber" to compile references (instead of "biblatex")
 style=\mybiblatexstyle, %% see biblatex documentation
 %style=alphabetic, %% see biblatex documentation
-dashed=\mybiblatexdashed, %% do *not* replace recurring reference authors with a dash
+%dashed=\mybiblatexdashed, %% do *not* replace recurring reference authors with a dash
 backref=\mybiblatexbackref, %% create backlings from references to citations
 natbib=true, %% offering natbib-compatible commands
 hyperref=true, %% using hyperref-package references

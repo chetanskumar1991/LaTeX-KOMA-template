@@ -358,8 +358,45 @@ where $d_{pos}$ and $d_{neg}$ denote the l2 distance of all the positive and neg
 {CVFT Experiments}%% optional (short) caption for list of figures
 {rw4.2} % cite paper
 
+\newpage
+\subsection{Geolocalization with 2.5D Maps}
+The method submitted by \cite{armagan2017} describes a method to refine a localization estimate given an initial GPS location, and a 2.5D Map of the surrounding location. A 2.5D Map are a set of buildings which are normal map tiles but where building heights are also supplied. 
+
+Since we know a coarse pose, we can render the 2.5D map from point of view, and align building facades with the facades of the render map. A CNN is used to predict the pose which best causes this alignment, is applied until the pose converges. 
+
+\subsubsection{Semantic Segmentation}
+A fully convolutional network is used to semantically segment the camera images into semantic classes. Only classes that are relevant to the pipeline, i.e. building, ground and sky are considered. The vertical and horizontal edges of these classes are extracted to help disambiguate the pose when the segmented and 2.5D rendered building facades are aligned.
+
+\subsubsection{Predicting a direction for pose refinement}
+The initial 6-DoF estimate can be obtained from the GPS location. Assuming the camera is at a fixed height, the ground plane is discretized in 8 direction classes defined in the camera coordinate system, including a class indicating that the current orientation is correct.
+
+Thus, given a semantic view and a rendering of the 2.5D map for the pose of that view, the network predicts the best direction class for the pose update. Three classes for the orientation direction is also defined as left, right or no rotation at all. 
+
+More specifically we have two CNNs that predict translation and orientation classes as follows:
+
+$d_t = CNN_t(R_F, R_{HE}, R_{VE}, R_{BG},S_F, S_{HE}, S_{VE}, S_{BG})$\\
+$d_o = CNN_o(R_F, R_{HE}, R_{VE}, R_{BG},S_F, S_{HE}, S_{VE}, S_{BG})$
+
+$R_F, R_{HE}, R_{VE}, R_{BG}$ are binary maps for classes facade (F), horizontal edge (HE), vertical edge(VE) and background (B) class obtained by rendering the 2.5D map by the coarse pose estimate. $S_F, S_{HE}, S_{VE}, S_{BG}$ are the probability maps for the same.
+
+\subsubsection{Pose Estimation Algorithm}
+$CNN_t$ and $CNN_o$ are applied iteratively, with a pose update after each iteration. The CNNs here do not provide a magnitude, so a line search method is used to determine the magnitude. As a quality criterion, we use the following maximum likelihood measure:
+
+$s_p = \sum_{c \in \{F, VE, HG, BG\}}\sum_{i \in R_c} log S_c^i$
+
+where $S^i_c$ is the probability at location $i$ for class $c$ from the semantic segmentation, and ${i\in R_c}$ is the set of locations that are set to 1 in the rendered binary mask $R_c$.
+
+For both direction and orientation predictions, linear updates are performed and those predictions that maximize the likelihood criterion specified above are kept as the final update. The iterations are stopped when both networks indicate the class of no movement. 
+
+\myfig{thesis/Armagan_algo}%% filename
+{scale=0.5}%% width/height
+{Pose estimation algorithm given translation and rotation directional estimates, taken from \cite{Armagan2017}}%% caption
+{Armagan Pose estimation}%% optional (short) caption for list of figures
+{rw4.3} % cite pape
 
 
+
+ 
 
 
 

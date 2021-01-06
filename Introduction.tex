@@ -7,7 +7,7 @@
 
 \chapter{Introduction}
 \section{Motivation}
-An important task of computer vision is to predict accurately the pose of a camera (rotation and translation) in the real world (called the \emph{pose}), given an image captured from it. This idea is christened \emph{visual localization} 
+An important task of computer vision is to predict accurately the pose of a camera (rotation and translation) in the real world (called the \emph{pose}), given an image captured from it. This idea is christened visual localization. 
 
 Visual localization is vital to applications that require robust navigation capabilities. An example that comes to mind would be the popular Autonomous Driving paradigm, wherein modalities such as GPS can be unreliable in dense urban areas. The camera, therefore, becomes a viable option to provide accurate estimates of the current position. 
 
@@ -15,7 +15,7 @@ The standard way to tackle this problem would be to utilize \emph{Structure from
 
 A quicker but less robust way is to store a database of images of known locations in the required area, indexed by carefully chosen image-specific features. The images closest to the query image would be extracted using these features, and an approximate location could be interpolated. This approach is definitely more scalable, but is susceptible to false positives and failure if the sampling of images in an area are not dense enough. 
 
-Deep Learning's rise has affected Visual Localization as well. The seminal paper on PoseNet \cite{Kendall2015}, proved that Localization is possible by training a Convolutional Neural Network (CNN) with image and pose data and then use it to predict the position of a new image in real-time. This approach definitely mitigates both the scale and accuracy problems, but the work by \cite{Sattler2019}, proves that PoseNet variants are not as powerful as traditional SfM approaches. He proves that the PoseNet variants end up learning several "basis" poses, of which the prediction is a linear combination.  
+Deep Learning's rise has affected Visual Localization as well. The seminal paper on PoseNet \cite{Kendall2015}, proved that Localization is possible by training a Convolutional Neural Network (CNN) with image and pose data. This approach definitely mitigates both the scale and accuracy problems, but the work by \cite{Sattler2019}, proves that PoseNet variants are not as powerful as traditional SfM approaches. He proves that the PoseNet variants end up learning several "basis" poses, of which the prediction is a linear combination.  
 
 State-of-the-art methods have made strides in mitigating this problem.
 
@@ -24,16 +24,16 @@ We propose a method that utilizes a CNN to infer pose directly on the map raster
 \section{Contribution}
 In this thesis, we estimate a coarse localization estimate of a car traversing through an urban setting. 
 
-We reformulate the visual localization problem as a 2d pose estimation directly on the map raster. Our Localization CNN (\cite{Brahmbhatt2018}, MapNet) is trained on OSM map tiles of an area, where the pose of a tile is simply a 2d offset from some arbitrary reference tile. Overlap between the tiles is assumed.    
+We reformulate the visual localization problem as a 2d pose estimation directly on the map raster. Our Localization CNN (\cite{Brahmbhatt2018}, MapNet) is trained on OSM map tiles of an area, where the pose of a tile is simply a 2D offset from some arbitrary reference tile.
 
-The location is queried by feeding it a map-tile representation obtained from the pointcloud of the scene. 
+At test time, the trained network outputs the pose from the input map tile representation obtained from the pointcloud of the scene.
 
-The method opens up a new data source for training visual localization networks - OpenStreetMap tile data, which covers most of the known urban world. We will aim to show that we can get reasonable pose estimates using just building/road pointclouds, using MapNet trained over large sections of a city. 
+The method opens up a new data source for training visual localization networks - OpenStreetMap tile data, which covers most of the known urban world. We show that we can get reasonable pose estimates using just building/road pointclouds, using MapNet trained over large sections of a city. 
 
 We evaluate the method with the Oxford RobotCar sequence. We choose locations in the drive sequence which have distinct building shapes, and directly infer GPS locations from the MapNet trained on that section of Oxford. 
 
 \section{Outline}
-We begin by describing the core concepts utilized in the method outlined in this thesis: the basic concepts of Structure from Motion(SfM), and a delineation of neural networks and convolutional neural networks (CNNs). We then describe the traditional solution to the localization problem, and proceed to the seminal localization CNN PoseNet. We later describe MapNet, and how we utilize it for our method. The process of getting from the PointCloud of the scene to a 2D Map-Tile representation ready for query is also described in this chapter. We then describe how we generate the dataset with which we train MapNet from OpenStreetMap.
+We begin by describing the core concepts utilized in the method outlined in this thesis: the basic concepts of Structure from Motion(SfM), and a delineation of neural networks and convolutional neural networks (CNNs). We then describe the traditional solution to the localization problem, and proceed to the seminal localization CNN. We later describe MapNet, and how we utilize it for our method. The process of getting from the PointCloud of the scene to a 2D Map-Tile representation ready for query is also described in this chapter. We then describe how we generate the dataset with which we train MapNet from OpenStreetMap.
 
 Finally, we showcase our experiments and results and close with our conclusions.
 

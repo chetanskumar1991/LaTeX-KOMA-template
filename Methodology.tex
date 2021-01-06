@@ -172,7 +172,7 @@ There exist several ways in which we can acquire the pointcloud from a moving ca
 
 However, most Autonomous Driving setups can safely be assumed to possess a LIDAR sensor. The LIDAR sensor gives us depth measurements within a certain range (usually more than 50 meters) at any given time, and one can combine these depth measurements and the vehicle pose at the timestamp from the Inertial Measurement Unit to yield a pointcloud for a sequence of timestamps. 
 
-For the purpose of this thesis, we will assume the presence of LIDAR and IMU sensor data for the construction of the pointcloud. 
+For the purpose of this thesis, we will assume the presence of LIDAR and IMU sensor data for the construction of the pointcloud (fig. \ref{Me1.7}). 
 
 \subsubsection{Pointcloud Segmentation}
 
@@ -186,21 +186,22 @@ We only require the points composing buildings and roads from the pointcloud to 
 
 We do not use the first approach of segmenting the pointcloud directly, as the network has to be retrained to cope with different kinds of urban scenes. The lack of generalization makes it hard to deploy quickly or reliably. 
 
-Instead, we implement the second approach. The intuition is that if we have constructed a pointcloud for a certain time period, then it can be projected to images taken in that time period (provided that their poses are known). We then decide the label of each pointcloud point by voting on which label it projects to on the set of images. More precisely, we outline the pseudocode for labeling below:
+We use the second approach, opting to go with the MSeg method (\cite{mseg2020}) to semantically segment images. In the ideal case, if the labels were transferred correctly onto the pointcloud we could move directly to the next step of converting it into the query map tile representation.
+
+The intuition is that if we have constructed a pointcloud for a certain time period, then it can be projected to images taken in that time period (provided that their poses are known). We then decide the label of each pointcloud point by voting on which label it projects to on the set of images. More precisely, we outline the pseudocode for labeling below:
 
 \begin{algorithm}
 \caption{Algorithm to label pointcloud by projecting to images}
 \begin{algorithmic}
-\REQUIRE $I_j(x,y) = \{l_{(x,y)}\}$, the set of labels for all locations $(x,y)$ in the image plane of image $I_j$.\\
-$I = \{I_1, I_2,..I_N\}$, the set of segmented images for associated with the pointcloud.\\
+\REQUIRE $S = \{S_1, S_2,..S_N\}$, the set of segmented images for associated with the pointcloud.\\
 $T = \{T_1, T_2,...T_N\}$, the set of absolute poses corresponding to each image.\\
 $P = \{p_1, p_2, ...p_M\}$, the set of 3d points in the pointcloud. \\
 \vspace{5 mm}
 \textbf{foreach} $p_k$ in $P$:\\
    
-   \hspace{5 mm} label-list: initialize an empty list for voting on a label for $p_k$\\
+   \hspace{5 mm} label-list: initialize an empty list for voting on a label for the 3d point $p_k$\\
     \hspace{5 mm}\textbf{foreach} $T_j$ in $T$:\\
-      \hspace{5 mm}\hspace{5 mm}$l$ = $I(T_j p_k)$\\
+      \hspace{5 mm}\hspace{5 mm}$l$ = $S_j(T_j p_k)$\\
       \hspace{5 mm}\hspace{5 mm}push label $l$ onto the label-list\\
 the label of $p_k$ is the label that occurs most in label-list\\
 \end{algorithmic}
@@ -212,12 +213,12 @@ the label of $p_k$ is the label that occurs most in label-list\\
 {LIDAR pointcloud segmentation}%% optional (short) caption for list of figures
 {Me1.8}
 
-The voting policy for labelling keypoints helps to mitigate the noise, but inaccuracies of the IMU will inevitably lead to mislabelings. We resort to a series of procedures which we will describe in the following section.
+The voting policy for labelling keypoints helps to mitigate the noise (fig. \ref{Me1.8}), but inaccuracies of the IMU will inevitably lead to mislabelings. We resort to a series of procedures which we will describe in the following section.
 
 \subsubsection{Conversion of the labelled pointcloud to map tile}
-Once we have labelled the pointcloud as building and road, we can fit a plane through the road points. For this we use open3d's (\cite{zhou2018}) plane segmentation method.
+Once we have labelled the pointcloud as building and road, we can fit a plane through the road points. For this we use (\cite{zhou2018})'s plane segmentation method.
 
-Once we have the road plane, we can project the building points onto it. The value of the projected pixel will be the "height" of the building point i.e. its distance from the road plane. 
+Once we have the road plane, we can project the building points onto it (fig. \ref{1.9}). The value of the projected pixel will be the "height" of the building point i.e. its distance from the road plane. 
 
 \myfig{thesis/pcl2flat}%% filename
 {scale=0.3}%% width/height
@@ -225,7 +226,7 @@ Once we have the road plane, we can project the building points onto it. The val
 {Pointcloud and Projection}%% optional (short) caption for list of figures
 {Me1.9}
 
-We then sample points "behind" both the upper and lower buildings as illustrated, and do ray-intersection tests in all directions from these points to trace out building contours. This way, we avoid hitting tree and other random noise which we would encounter if we shot our sampling rays from somewhere on the road. 
+We then sample points from behind buildings on either sides of the road as in fig. \ref{Me2.0}, and do ray-intersection tests in all directions from these points to trace out building contours. This way, we avoid hitting tree and other random noise which we would encounter if we shot our sampling rays from somewhere on the road. 
 
 \myfig{thesis/flat2ray}%% filename
 {scale=0.3}%% width/height
@@ -233,7 +234,7 @@ We then sample points "behind" both the upper and lower buildings as illustrated
 {Projection and Sampled Projection}%% optional (short) caption for list of figures
 {Me2.0}
 
-We then scan each column of this projected image, and keep only the 5 points with highest height (i.e. the 5 points which corresponds to building points of maximum height). This strategy is useful to discard noisy tree points which are often lower than the tops of the buildings. 
+We then scan each column of this projected image, and keep only the 5 highest valued points, i.e. the 5 points of maximum height (fig \ref{Me2.1}). This strategy is useful to discard noisy tree points which are often lower than the tops of the buildings. 
 
 \myfig{thesis/ray2ref}%% filename
 {scale=0.29}%% width/height
@@ -241,7 +242,7 @@ We then scan each column of this projected image, and keep only the 5 points wit
 {Sampled projection and Refined sampled projection}%% optional (short) caption for list of figures
 {Me2.1}
 
-This strategy does lead to images where most noisy points mixed with building points are removed. However, several images have only trees on one side and no buildings at all. In this case, our simple approach will keep the trees as it is only a way to filter noise assuming presence of buildings. 
+This strategy does lead to images where most noisy points mixed with building points are removed. However, several images have only trees on one side and no buildings at all or when trees are higher than buildings. In this case, our simple approach will keep the trees as it is only a way to filter noise assuming presence of buildings. 
 
 \pagebreak
 \subsubsection{Rotation to align with True North, and scaling to OSM tile resolution}
@@ -255,7 +256,7 @@ As we assume the presence of a gyroscope, we can get the attitude (orientation o
 {Final Sampled Projection and Corresponding OSM Tile}%% optional (short) caption for list of figures
 {Me2.2}
 
-We must also make sure that our query-tile is at a resolution similar to OSM map tiles. We do this by calculating the extremal points of the road, and accumulate the distance travelled in meters for the map tile (with car measurements, or IMU). With this, we have an estimate of the pixel per meter resolution for our query tile. We will scale this so that it matches OSM map tile resolution (0.298 meters/pixel for the Oxford Dataset).
+We must also make sure that our query-tile is at a resolution similar to OSM map tiles. We do this by calculating the extreme points of the road, and accumulate the distance travelled in meters for the map tile (with car measurements, or IMU). With this, we have an estimate of the pixel per meter resolution for our query tile. We will scale this so that it matches OSM map tile resolution which is about 0.298 meters/pixel for the Oxford Dataset (fig. \ref{Me2.2}).
 
 However, it must be noted that our scaling to OSM resolution is not precise as we cannot calculate the exact pixels travelled in case of a non-linear road. This may lead to noisy estimates during inference. 
 
